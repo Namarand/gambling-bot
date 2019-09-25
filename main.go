@@ -121,6 +121,7 @@ func handleDisplay(user twitch.User, contents []string) {
     for user, value := range vote.Vote {
 	transformed[value] = append(transformed[value], user)
     }
+    fmt.Println(transformed)
     client.Say(CHANNEL, "The current vote for " + contents[2] + ": " + strings.Join(transformed[contents[2]], ", "))
 }
 
