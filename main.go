@@ -136,7 +136,7 @@ func handleVote(user twitch.User, contents []string) {
     if isValid(contents[2]) {
 	vote.Vote[user.Name] = contents[2]
     } else {
-	fmt.Println("You should vote for something that exist!")
+	fmt.Println(user.Name + ": Invalid vote: got '" + contents[2] + "'")
     }
 }
 
