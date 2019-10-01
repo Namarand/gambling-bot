@@ -106,7 +106,7 @@ func handleRoll(user twitch.User, contents []string) {
 }
 
 func handleVote(user twitch.User, contents []string) {
-    if !vote.IsOpen {
+    if vote != nil &&!vote.IsOpen {
 	fmt.Println("Don't try to vote while it's close...")
 	    return
     }
@@ -151,7 +151,7 @@ func handleDelete(user twitch.User) {
 }
 
 func handleStat(user twitch.User) {
-    if !checkPermission(user) {
+    if !checkPermission(user) ||  {
 	return
     }
     if link, err := createStat(); err == nil {
