@@ -18,7 +18,7 @@ type Gambling struct {
 
 var vote *Gambling
 var client *twitch.Client
-var CHANNEL = "namarand"//"val_pl_magicarenafr"
+var CHANNEL = "val_pl_magicarenafr"
 var KEY_PASTEBIN = "58a788a403a74613ed74e745f473aaa6"
 
 func isValid(str string) bool {
