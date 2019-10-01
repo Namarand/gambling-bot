@@ -159,6 +159,7 @@ func handleStat(user twitch.User) {
 		sayAdmin(link)
 	} else {
 		fmt.Println("Error while generating pastebin")
+		fmt.Println(err)
 	}
 }
 
@@ -170,6 +171,7 @@ func handlePrivateStat(user twitch.User) {
 		fmt.Println(link)
 	} else {
 		fmt.Println("Error while generating pastebin")
+		fmt.Println(err)
 	}
 }
 
