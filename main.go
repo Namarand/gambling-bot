@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gempir/go-twitch-irc"
+	"github.com/Ronmi/pastebin"
 )
 
 type Gambling struct {
@@ -16,7 +17,8 @@ type Gambling struct {
 
 var vote *Gambling
 var client *twitch.Client
-var CHANNEL = "val_pl_magicarenafr"
+var CHANNEL = "namarand"//"val_pl_magicarenafr"
+var KEY_PASTEBIN = "58a788a403a74613ed74e745f473aaa6"
 
 func isValid(str string) bool {
     if vote == nil {
@@ -117,11 +119,57 @@ func handleVote(user twitch.User, contents []string) {
     }
 }
 
+func createStat() (string, error) {
+	api := pastebin.API{Key: KEY_PASTEBIN}
+	
+	transformed := make(map[string][]string)
+    for user, value := range vote.Vote {
+		transformed[value] = append(transformed[value], user)
+    }
+	sum := 0
+	for _, users := range transformed {
+		sum += len(users)
+	}
+	str := "Total amount: " + string(sum) + "\n"
+	for value, users := range transformed {
+		str += value + " (" + string(len(users)) + "): " + strings.Join(users, ", ") + "\n"
+	}
+	
+	return api.Post(&pastebin.Paste{
+		Title: "Stat Vote",
+		Content: str,
+		Format: "markdown",
+		ExpireAt: pastebin.In1D,
+	})
+}
+
 func handleDelete(user twitch.User) {
     if !checkPermission(user) {
 	return
     }
     vote = nil
+}
+
+func handleStat(user twitch.User) {
+    if !checkPermission(user) {
+	return
+    }
+    if link, err := createStat(); err != nil {
+		sayAdmin(link)
+	} else {
+		fmt.Println("Error while generating pastebin")
+	}
+}
+
+func handlePrivateStat(user twitch.User) {
+    if !checkPermission(user) {
+	return
+    }
+    if link, err := createStat(); err != nil {
+		fmt.Println(link)
+	} else {
+		fmt.Println("Error while generating pastebin")
+	}
 }
 
 func handleReset(user twitch.User) {
@@ -152,6 +200,10 @@ func parseMessage(message twitch.PrivateMessage) {
 	handleDelete(message.User)
     case "reset":
 	handleReset(message.User)
+	case "stats":
+	handleStat(message.User)
+	case "privatestats":
+	handlePrivateStat(message.User)
     }
 }
 
