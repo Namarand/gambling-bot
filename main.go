@@ -134,7 +134,7 @@ func createStat() (string, error) {
 	for value, users := range transformed {
 		str += value + " (" + string(len(users)) + "): " + strings.Join(users, ", ") + "\n"
 	}
-	
+	fmt.Println(str)
 	return api.Post(&pastebin.Paste{
 		Title: "Stat Vote",
 		Content: str,
