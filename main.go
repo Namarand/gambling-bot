@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
+	"math/rand
+	"strconv"
 	"strings"
 
 	"github.com/gempir/go-twitch-irc"
@@ -130,9 +131,9 @@ func createStat() (string, error) {
 	for _, users := range transformed {
 		sum += len(users)
 	}
-	str := "Total amount: " + string(sum) + "\n"
+	str := "Total amount: " + strconv.Itoa(sum) + "\n"
 	for value, users := range transformed {
-		str += value + " (" + string(len(users)) + "): " + strings.Join(users, ", ") + "\n"
+		str += value + " (" + strconv.Itoa(len(users)) + "): " + strings.Join(users, ", ") + "\n"
 	}
 	fmt.Println(str)
 	return api.Post(&pastebin.Paste{
@@ -154,7 +155,7 @@ func handleStat(user twitch.User) {
     if !checkPermission(user) {
 	return
     }
-    if link, err := createStat(); err != nil {
+    if link, err := createStat(); err == nil {
 		sayAdmin(link)
 	} else {
 		fmt.Println("Error while generating pastebin")
@@ -165,7 +166,7 @@ func handlePrivateStat(user twitch.User) {
     if !checkPermission(user) {
 	return
     }
-    if link, err := createStat(); err != nil {
+    if link, err := createStat(); err == nil {
 		fmt.Println(link)
 	} else {
 		fmt.Println("Error while generating pastebin")
