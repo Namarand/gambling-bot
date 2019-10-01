@@ -102,29 +102,6 @@ func handleRoll(user twitch.User, contents []string) {
     sayAdmin("The winner is... " + winners[rand.Intn(len(winners))])
 }
 
-func handleDisplay(user twitch.User, contents []string) {
-    if !checkPermission(user) {
-	return
-    }
-    if vote == nil {
-	sayAdmin("There is no on going vote.")
-	return
-    }
-    if len(contents) < 3 {
-	sayAdmin("You must specify the categorie to display.")
-	return
-    }
-    if !isValid(contents[2]) {
-	sayAdmin("This is not a correct option: " + contents[2])
-    }
-    transformed := make(map[string][]string)
-    for user, value := range vote.Vote {
-	transformed[value] = append(transformed[value], user)
-    }
-    fmt.Println(transformed)
-    client.Say(CHANNEL, "The current vote for " + contents[2] + ": " + strings.Join(transformed[contents[2]], ", "))
-}
-
 func handleVote(user twitch.User, contents []string) {
     if !vote.IsOpen {
 	fmt.Println("Don't try to vote while it's close...")
@@ -169,8 +146,6 @@ func parseMessage(message twitch.PrivateMessage) {
 	handleClose(message.User)
     case "roll":
 	handleRoll(message.User, contents)
-    case "display":
-	handleDisplay(message.User, contents)
     case "vote":
 	handleVote(message.User, contents)
     case "delete":
