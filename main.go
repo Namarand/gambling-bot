@@ -139,7 +139,6 @@ func createStat() (string, error) {
 	return api.Post(&pastebin.Paste{
 		Title: "Stat Vote",
 		Content: str,
-		Format: "markdown",
 		ExpireAt: pastebin.In1D,
 	})
 }
