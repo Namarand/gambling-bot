@@ -21,7 +21,7 @@ var client *twitch.Client
 var CHANNEL = "val_pl_magicarenafr"
 var KEY_PASTEBIN = "58a788a403a74613ed74e745f473aaa6"
 
-func isValid(str string) bool {
+func isValidVote(str string) bool {
 	if vote == nil {
 		return false
 	}
@@ -106,7 +106,7 @@ func handleRoll(user twitch.User, contents []string) {
 }
 
 func handleVote(user twitch.User, contents []string) {
-	if vote != nil && !vote.IsOpen {
+	if vote == nil || !vote.IsOpen {
 		fmt.Println("Don't try to vote while it's close...")
 		return
 	}
