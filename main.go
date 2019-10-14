@@ -89,7 +89,7 @@ func handleRoll(user twitch.User, contents []string) {
 		sayAdmin("You must specify the winner.")
 		return
 	}
-	if !isValid(contents[2]) {
+	if !isValidVote(contents[2]) {
 		sayAdmin("This is not a correct option: " + contents[2])
 	}
 	winners := []string{}
@@ -113,7 +113,7 @@ func handleVote(user twitch.User, contents []string) {
 	if len(contents) < 2 {
 		fmt.Println("Expected one argument to vote...")
 	}
-	if isValid(contents[2]) {
+	if isValidVote(contents[2]) {
 		vote.Vote[user.Name] = contents[2]
 	} else {
 		fmt.Println(user.Name + ": Invalid vote: got '" + contents[2] + "'")
