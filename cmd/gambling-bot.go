@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"strconv"
 	"strings"
 
+	internal "github.com/Namarand/grambling-bot/internal/app"
 	"github.com/Ronmi/pastebin"
 	twitch "github.com/gempir/go-twitch-irc/v2"
 )
@@ -210,17 +212,11 @@ func parseMessage(message twitch.PrivateMessage) {
 }
 
 func main() {
-	client = twitch.NewClient("GamblingBotValPL", "oauth:9tcadjq1yafy4uqjzfrx3fm3d89yu3")
+	// TODO: add a cli package like urfave/cli
+	gamble := internal.NewGambling("settings/conf.yml")
 
-	client.OnPrivateMessage(parseMessage)
-	client.OnConnect(func() {
-		client.Say(CHANNEL, "Hi there! Ready to gamble?")
-	})
-
-	client.Join(CHANNEL)
-
-	err := client.Connect()
+	err := gamble.Start()
 	if err != nil {
-		panic(err)
+		log.Fatal("Error connecting bot to Twitch channel")
 	}
 }
