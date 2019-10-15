@@ -1,5 +1,4 @@
-// Package config handles all config stuff related to a gamble-bot instance
-package config
+package app
 
 import (
 	"io/ioutil"

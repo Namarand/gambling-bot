@@ -1,5 +1,4 @@
-// Package config testing
-package config
+package app
 
 import (
 	"testing"
