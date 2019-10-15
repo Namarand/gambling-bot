@@ -213,7 +213,7 @@ func parseMessage(message twitch.PrivateMessage) {
 
 func main() {
 	// TODO: add a cli package like urfave/cli
-	gamble := internal.NewGambling("settings/conf.yml")
+	gamble := internal.NewGambling("../settings/config.yml")
 
 	err := gamble.Start()
 	if err != nil {
