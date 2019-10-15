@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/Ronmi/pastebin"
-	"github.com/gempir/go-twitch-irc"
+	twitch "github.com/gempir/go-twitch-irc/v2"
 )
 
 type Gambling struct {

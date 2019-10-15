@@ -1,0 +1,5 @@
+github.com/Ronmi/pastebin v0.0.0-20180209215645-c677cc16dbd7 h1:OFiiu7rGBLZBQSLlUzLOdqPbtlMP7tuScr5Y8rXWS4E=
+github.com/Ronmi/pastebin v0.0.0-20180209215645-c677cc16dbd7/go.mod h1:KOzQBAlu93j1pK3BaEP/nUpqwyYAlgK0NtER15bN0iI=
+github.com/gempir/go-twitch-irc v1.1.0 h1:Q9gQGI/3yJzYwlYDlFsGJzWfpaqubMExfmBXNpOC6W0=
+github.com/gempir/go-twitch-irc/v2 v2.2.0 h1:9iYRr/PkT5tqnD9J0awBXtwS4R4DatA5cMQbsua6OvM=
+github.com/gempir/go-twitch-irc/v2 v2.2.0/go.mod h1:0HXoEr9l7gNjwajosptV0w0xGpHeU6gsD7JDlfvjTYI=
