@@ -24,6 +24,7 @@ type Conf struct {
 	Pastebin PastebinCreds
 	Twitch   TwitchCreds
 	Admins   []string
+	Hello    string
 }
 
 // getConf method reads a config file and return and fill a Conf struct
