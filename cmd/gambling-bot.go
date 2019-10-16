@@ -45,26 +45,6 @@ func checkPermission(user twitch.User) bool {
 	return user.Name == "namarand" || user.Name == CHANNEL
 }
 
-func handleCreate(user twitch.User, contents []string) {
-	if !checkPermission(user) {
-		return
-	}
-	if vote != nil {
-		sayAdmin("There is already a vote going, you should delete it first with '!gamble delete'.")
-		return
-	}
-	if len(contents) <= 2 {
-		sayAdmin("You must pass the possibilities as arguments.")
-		return
-	}
-	vote = new(Gambling)
-	vote.IsOpen = true
-	vote.Vote = make(map[string]string)
-	vote.Possibilities = contents[2:]
-	sayAdmin("There is a new vote! You can vote with '!gamble vote <vote>'.")
-	sayAdmin("You can vote for: " + strings.Join(contents[2:], ", "))
-}
-
 func handleClose(user twitch.User) {
 	if !checkPermission(user) {
 		return
@@ -183,34 +163,6 @@ func handleReset(user twitch.User) {
 		return
 	}
 	vote.Vote = make(map[string]string)
-}
-
-func parseMessage(message twitch.PrivateMessage) {
-	if !strings.HasPrefix(message.Message, "!gamble") {
-		return
-	}
-	contents := strings.Split(message.Message, " ")
-	if len(contents) == 1 {
-		return
-	}
-	switch contents[1] {
-	case "create":
-		handleCreate(message.User, contents)
-	case "close":
-		handleClose(message.User)
-	case "roll":
-		handleRoll(message.User, contents)
-	case "vote":
-		handleVote(message.User, contents)
-	case "delete":
-		handleDelete(message.User)
-	case "reset":
-		handleReset(message.User)
-	case "stats":
-		handleStat(message.User)
-	case "privatestats":
-		handlePrivateStat(message.User)
-	}
 }
 
 func main() {
