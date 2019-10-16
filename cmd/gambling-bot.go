@@ -168,7 +168,7 @@ func main() {
 			Name:   "config, c",
 			Usage:  "Path to yaml config file",
 			EnvVar: "CONFIG",
-			Value:  "/etc/gramble/config.yml",
+			Value:  "/etc/gamble/config.yml",
 		},
 	}
 
