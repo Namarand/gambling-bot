@@ -152,7 +152,7 @@ func (g *Gambling) handleCreate(user twitch.User, args []string) {
 
 	g.CurrentVote.IsOpen = true
 	g.CurrentVote.Votes = make(map[string]string)
-	g.CurrentVote.Possibilities = args[2:]
+	g.CurrentVote.Possibilities = args
 
 	g.say(fmt.Sprintf("There is a new vote! You can vote with '%s vote <vote>'.", g.Config.Prefix))
 	g.say("You can vote for: " + strings.Join(g.CurrentVote.Possibilities, ", "))
