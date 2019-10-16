@@ -154,7 +154,7 @@ func (g *Gambling) handleCreate(user twitch.User, args []string) {
 	g.CurrentVote.Votes = make(map[string]string)
 	g.CurrentVote.Possibilities = args
 
-	g.say(fmt.Sprintf("There is a new vote! You can vote with '%s vote <vote> (choices are : %s)", g.Config.Prefix, strings.Join(g.CurrentVote.Possibilities, " or ")))
+	g.say(fmt.Sprintf("There is a new vote! You can vote with '%s vote <vote> (choices are : %s)'", g.Config.Prefix, strings.Join(g.CurrentVote.Possibilities, " or ")))
 }
 
 // close vote handler
