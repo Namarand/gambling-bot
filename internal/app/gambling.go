@@ -55,6 +55,8 @@ func (g *Gambling) twitchOnEventSetup() {
 	g.Twitch.OnPrivateMessage(func(message twitch.PrivateMessage) {
 		fmt.Println(message.Message)
 	})
+
+	// On connect handler
 	g.Twitch.OnConnect(func() {
 		g.Twitch.Say(g.Config.Twitch.Channel, g.Config.Hello)
 	})
