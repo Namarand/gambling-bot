@@ -100,7 +100,7 @@ func (g *Gambling) twitchOnEventSetup() {
 			// handleRoll(message.User, contents)
 			break
 		case "vote":
-			// handleVote(message.User, contents)
+			g.handleVote(message.User, args)
 			break
 		case "delete":
 			// handleDelete(message.User)
@@ -178,5 +178,44 @@ func (g *Gambling) handleClose(user twitch.User) {
 
 	g.CurrentVote.IsOpen = false
 	g.say("The vote is now closed!")
+
+}
+
+// handle a vote
+func (g *Gambling) handleVote(user twitch.User, args []string) {
+
+	// Ensure the vote is open
+	if !g.CurrentVote.IsOpen {
+		fmt.Println("Don't try to vote while it's close...")
+		return
+	}
+
+	// Ensure there is args
+	if args != nil && len(args) < 1 {
+		fmt.Println("Expected one argument to vote...")
+	}
+
+	// Check if vote is valid
+	if g.isVoteValid(args[0]) {
+		// If it is add it
+		g.CurrentVote.Votes[user.Name] = args[0]
+	} else {
+		fmt.Println(user.Name + ": Invalid vote: got '" + args[0] + "'")
+	}
+
+}
+
+func (g *Gambling) isVoteValid(vote string) bool {
+
+	// Loop over possibilities
+	for _, p := range g.CurrentVote.Possibilities {
+		// ensure lowercase on everything
+		// check equality
+		if p == strings.ToLower(vote) {
+			return true
+		}
+	}
+
+	return false
 
 }

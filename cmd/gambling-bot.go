@@ -77,21 +77,6 @@ func handleRoll(user twitch.User, contents []string) {
 	sayAdmin("The winner is... " + winners[rand.Intn(len(winners))])
 }
 
-func handleVote(user twitch.User, contents []string) {
-	if vote == nil || !vote.IsOpen {
-		fmt.Println("Don't try to vote while it's close...")
-		return
-	}
-	if len(contents) < 2 {
-		fmt.Println("Expected one argument to vote...")
-	}
-	if isValidVote(contents[2]) {
-		vote.Vote[user.Name] = contents[2]
-	} else {
-		fmt.Println(user.Name + ": Invalid vote: got '" + contents[2] + "'")
-	}
-}
-
 func createStat() (string, error) {
 	api := pastebin.API{Key: KEY_PASTEBIN}
 
