@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"strings"
 
 	twitch "github.com/gempir/go-twitch-irc/v2"
 )
@@ -32,6 +33,19 @@ func NewGambling(confPath string) *Gambling {
 	g.join()
 
 	return g
+
+}
+
+// Extract cmd and args from message
+func extractCommand(message string) (string, []string) {
+
+	contents := strings.Fields(message)
+
+	if len(contents) >= 3 {
+		return contents[1], contents[2:]
+	}
+
+	return contents[1], nil
 
 }
 
