@@ -7,12 +7,21 @@ import (
 	twitch "github.com/gempir/go-twitch-irc/v2"
 )
 
+// Vote is a structure handling all voting params and status
+type Vote struct {
+	IsOpen        bool
+	Possibilities []string
+	Votes         map[string]string
+}
+
 // Gambling is a meta structure containing all the stuff needed by a Gambling instance
 type Gambling struct {
 	// Config from yaml file
 	Config Conf
 	// Twitch client
 	Twitch *twitch.Client
+	// Vote
+	CurrentVote *Vote
 }
 
 // NewGambling func create a new Gambling struct
@@ -31,6 +40,9 @@ func NewGambling(confPath string) *Gambling {
 
 	// Join Twitch channel
 	g.join()
+
+	// init vote
+	g.CurrentVote = new(Vote)
 
 	return g
 
