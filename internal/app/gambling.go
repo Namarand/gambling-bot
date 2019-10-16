@@ -61,6 +61,18 @@ func extractCommand(message string) (string, []string) {
 
 }
 
+// Ensure that everything in a string array is lowercase
+func lower(data []string) []string {
+	var res []string
+
+	for _, e := range data {
+		res = append(res, strings.ToLower(e))
+	}
+
+	return res
+
+}
+
 // Link Twitch events to dedicated functions
 func (g *Gambling) twitchOnEventSetup() {
 	// Message handler, closure, because an access to *Gambling is needed
