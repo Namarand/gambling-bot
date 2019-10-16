@@ -70,3 +70,8 @@ func (g *Gambling) join() {
 func (g *Gambling) Start() error {
 	return g.Twitch.Connect()
 }
+
+// say will be used to send informations to twitch channel
+func (g *Gambling) say(message string) {
+	g.Twitch.Say(g.Config.Twitch.Channel, message)
+}
