@@ -25,6 +25,7 @@ type Conf struct {
 	Twitch   TwitchCreds
 	Admins   []string
 	Hello    string
+	Prefix   string
 }
 
 // getConf method reads a config file and return and fill a Conf struct
