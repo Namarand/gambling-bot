@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
 	"strconv"
 	"strings"
 
 	internal "github.com/Namarand/grambling-bot/internal/app"
 	"github.com/Ronmi/pastebin"
 	twitch "github.com/gempir/go-twitch-irc/v2"
+	"github.com/urfave/cli"
 )
 
 type Gambling struct {
@@ -212,11 +214,39 @@ func parseMessage(message twitch.PrivateMessage) {
 }
 
 func main() {
-	// TODO: add a cli package like urfave/cli
-	gamble := internal.NewGambling("../settings/config.yml")
 
-	err := gamble.Start()
-	if err != nil {
-		log.Fatal("Error connecting bot to Twitch channel")
+	// Declare app
+	app := cli.NewApp()
+	// Basic config
+	app.Name = "gambling-bot"
+	app.Usage = "A golang powered Twitch bot handling simple vote mechanism"
+	app.Version = "0.1.0"
+
+	// Flags
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:   "config, c",
+			Usage:  "Path to yaml config file",
+			EnvVar: "CONFIG",
+			Value:  "/etc/gramble/config.yml",
+		},
 	}
+
+	// Action
+	app.Action = func(c *cli.Context) error {
+
+		// Create a new gambling instance
+		gambling := internal.NewGambling(c.String("config"))
+
+		// Start it
+		return gambling.Start()
+
+	}
+
+	// Run
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }
