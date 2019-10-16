@@ -45,18 +45,6 @@ func checkPermission(user twitch.User) bool {
 	return user.Name == "namarand" || user.Name == CHANNEL
 }
 
-func handleClose(user twitch.User) {
-	if !checkPermission(user) {
-		return
-	}
-	if vote == nil {
-		sayAdmin("There is no on going vote.")
-		return
-	}
-	vote.IsOpen = false
-	sayAdmin("The vote is now closed!")
-}
-
 func handleRoll(user twitch.User, contents []string) {
 	if !checkPermission(user) {
 		return

@@ -82,7 +82,7 @@ func (g *Gambling) twitchOnEventSetup() {
 			g.handleCreate(message.User, args)
 			break
 		case "close":
-			// handleClose(message.User)
+			g.handleClose(message.User)
 			break
 		case "roll":
 			// handleRoll(message.User, contents)
@@ -155,4 +155,16 @@ func (g *Gambling) handleCreate(user twitch.User, args []string) {
 	g.CurrentVote.Possibilities = args
 
 	g.say(fmt.Sprintf("There is a new vote! You can vote with '%s vote <vote> (choices are : %s)", g.Config.Prefix, strings.Join(g.CurrentVote.Possibilities, " or ")))
+}
+
+// close vote handler
+func (g *Gambling) handleClose(user twitch.User) {
+	// If user is not admin, return without doing nothing
+	if !checkPermission(user.Name, g.Config.Admins) {
+		return
+	}
+
+	g.CurrentVote.IsOpen = false
+	g.say("The vote is now closed!")
+
 }
