@@ -106,7 +106,7 @@ func (g *Gambling) twitchOnEventSetup() {
 			g.handleDelete(message.User)
 			break
 		case "reset":
-			// handleReset(message.User)
+			g.handleReset(message.User)
 			break
 		case "stats":
 			// handleStat(message.User)
@@ -214,6 +214,16 @@ func (g *Gambling) handleDelete(user twitch.User) {
 
 	g.CurrentVote = new(Vote)
 
+}
+
+// handle a vote reset
+func (g *Gambling) handleReset(user twitch.User) {
+
+	if !checkPermission(user.Name, g.Config.Admins) {
+		return
+	}
+
+	g.CurrentVote.Votes = make(map[string]string)
 }
 
 // Is a vote valid ?

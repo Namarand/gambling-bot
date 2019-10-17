@@ -124,13 +124,6 @@ func handlePrivateStat(user twitch.User) {
 	}
 }
 
-func handleReset(user twitch.User) {
-	if !checkPermission(user) {
-		return
-	}
-	vote.Vote = make(map[string]string)
-}
-
 func main() {
 
 	// Declare app
