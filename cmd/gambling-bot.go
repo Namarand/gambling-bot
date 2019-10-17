@@ -5,41 +5,10 @@ import (
 	"os"
 
 	internal "github.com/Namarand/grambling-bot/internal/app"
-	twitch "github.com/gempir/go-twitch-irc/v2"
 	"github.com/urfave/cli"
 )
 
-type Gambling struct {
-	IsOpen        bool
-	Possibilities []string
-	Vote          map[string]string
-}
-
-var vote *Gambling
-var client *twitch.Client
-var CHANNEL = "val_pl_magicarenafr"
-var KEY_PASTEBIN = "58a788a403a74613ed74e745f473aaa6"
-
-func isValidVote(str string) bool {
-	if vote == nil {
-		return false
-	}
-	for _, key := range vote.Possibilities {
-		if key == str {
-			return true
-		}
-	}
-	return false
-}
-
-func sayAdmin(message string) {
-	client.Say(CHANNEL, "@"+CHANNEL+": "+message)
-}
-
-func checkPermission(user twitch.User) bool {
-	return user.Name == "namarand" || user.Name == CHANNEL
-}
-
+// Entrypoint
 func main() {
 
 	// Declare app
