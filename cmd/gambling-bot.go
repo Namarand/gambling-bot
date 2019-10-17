@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"math/rand"
 	"os"
 
 	internal "github.com/Namarand/grambling-bot/internal/app"
@@ -39,38 +38,6 @@ func sayAdmin(message string) {
 
 func checkPermission(user twitch.User) bool {
 	return user.Name == "namarand" || user.Name == CHANNEL
-}
-
-func handleRoll(user twitch.User, contents []string) {
-	if !checkPermission(user) {
-		return
-	}
-	if vote == nil {
-		sayAdmin("There is no on going vote.")
-		return
-	}
-	if vote.IsOpen {
-		sayAdmin("The vote isn't closed.")
-		return
-	}
-	if len(contents) < 3 {
-		sayAdmin("You must specify the winner.")
-		return
-	}
-	if !isValidVote(contents[2]) {
-		sayAdmin("This is not a correct option: " + contents[2])
-	}
-	winners := []string{}
-	for user, vote := range vote.Vote {
-		if vote == contents[2] {
-			winners = append(winners, user)
-		}
-	}
-	if len(winners) == 0 {
-		sayAdmin("No one vote for this one...")
-		return
-	}
-	sayAdmin("The winner is... " + winners[rand.Intn(len(winners))])
 }
 
 func main() {

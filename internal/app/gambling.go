@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
 
 	twitch "github.com/gempir/go-twitch-irc/v2"
@@ -97,7 +98,7 @@ func (g *Gambling) twitchOnEventSetup() {
 			g.handleClose(message.User)
 			break
 		case "roll":
-			// handleRoll(message.User, contents)
+			g.handleRoll(message.User, args)
 			break
 		case "vote":
 			g.handleVote(message.User, args)
@@ -264,6 +265,48 @@ func (g *Gambling) handleStat(user twitch.User, args []string) {
 		fmt.Println("Error while generating pastebin")
 		fmt.Println(err)
 	}
+}
+
+// handle roll and select winner
+func (g *Gambling) handleRoll(user twitch.User, args []string) {
+
+	if !checkPermission(user.Name, g.Config.Admins) {
+		return
+	}
+
+	if len(g.CurrentVote.Votes) == 0 {
+		g.sayAt("There is no vote", g.Config.Admins)
+		return
+	}
+
+	if g.CurrentVote.IsOpen {
+		g.sayAt("The vote isn't closed", g.Config.Admins)
+		return
+	}
+
+	if len(args) < 1 {
+		g.sayAt("You must specify the winner", g.Config.Admins)
+		return
+	}
+
+	if !g.isVoteValid(args[0]) {
+		g.sayAt(fmt.Sprintf("This is not a correct option: %s", args[0]), g.Config.Admins)
+	}
+
+	winners := []string{}
+	for user, vote := range g.CurrentVote.Votes {
+		if vote == strings.ToLower(args[0]) {
+			winners = append(winners, user)
+		}
+	}
+
+	if len(winners) == 0 {
+		g.sayAt("No one vote for this one...", g.Config.Admins)
+		return
+	}
+
+	g.sayAt(fmt.Sprintf("The winner is... %s", winners[rand.Intn(len(winners))]), g.Config.Admins)
+
 }
 
 // Is a vote valid ?
