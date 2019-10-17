@@ -22,3 +22,9 @@ then build
 cd cmd
 go build gambling-bot.go -o gambling-bot
 ```
+
+## Running the tests
+
+```sh
+go test github.com/Namarand/grambling-bot/internal/app
+```
