@@ -142,6 +142,14 @@ func (g *Gambling) say(message string) {
 	g.Twitch.Say(g.Config.Twitch.Channel, message)
 }
 
+// say will be used to send informations to targeted users
+// ENSURE BOT IS VERIFIED TO USE THIS FUNCTION
+func (g *Gambling) whisper(message string, users []string) {
+	for _, u := range users {
+		g.Twitch.Whisper(u, message)
+	}
+}
+
 // Handlers for all the things !
 // create command handler
 func (g *Gambling) handleCreate(user twitch.User, args []string) {
