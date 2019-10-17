@@ -100,13 +100,6 @@ func createStat() (string, error) {
 	})
 }
 
-func handleDelete(user twitch.User) {
-	if !checkPermission(user) {
-		return
-	}
-	vote = nil
-}
-
 func handleStat(user twitch.User) {
 	if !checkPermission(user) {
 		return

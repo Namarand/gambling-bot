@@ -103,7 +103,7 @@ func (g *Gambling) twitchOnEventSetup() {
 			g.handleVote(message.User, args)
 			break
 		case "delete":
-			// handleDelete(message.User)
+			g.handleDelete(message.User)
 			break
 		case "reset":
 			// handleReset(message.User)
@@ -202,6 +202,17 @@ func (g *Gambling) handleVote(user twitch.User, args []string) {
 	} else {
 		fmt.Println(user.Name + ": Invalid vote: got '" + args[0] + "'")
 	}
+
+}
+
+// handle a vote delete
+func (g *Gambling) handleDelete(user twitch.User) {
+
+	if !checkPermission(user.Name, g.Config.Admins) {
+		return
+	}
+
+	g.CurrentVote = new(Vote)
 
 }
 
