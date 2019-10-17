@@ -139,6 +139,17 @@ func (g *Gambling) say(message string) {
 	g.Twitch.Say(g.Config.Twitch.Channel, message)
 }
 
+// say will be used to send informations to twitch channel
+func (g *Gambling) sayAt(message string, users []string) {
+
+	at := ""
+
+	for _, u := range users {
+		at = at + fmt.Sprintf("@%s ", u)
+	}
+	g.Twitch.Say(g.Config.Twitch.Channel, fmt.Sprintf("%s : %s", at, message))
+}
+
 // say will be used to send informations to targeted users
 // ENSURE BOT IS VERIFIED TO USE THIS FUNCTION
 func (g *Gambling) whisper(message string, users []string) {
