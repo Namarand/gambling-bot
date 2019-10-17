@@ -1,0 +1,12 @@
+pastebin:
+  key: "KEY"
+twitch:
+  channel: "val_pl_magicarenafr"
+  username: "GamblingBotValPl"
+  oauth: "TOKEN"
+admins:
+  - "namarand"
+  - "mayalabielle"
+  - "val_pl_magicarenafr"
+hello: "Hey there ! Ready to gamble ?"
+prefix: "!gamble"
