@@ -109,10 +109,7 @@ func (g *Gambling) twitchOnEventSetup() {
 			g.handleReset(message.User)
 			break
 		case "stats":
-			// handleStat(message.User)
-			break
-		case "privatestats":
-			// handlePrivateStat(message.User)
+			g.handleStat(message.User, args)
 			break
 		default:
 			fmt.Println("Warning: received an unsupported function")
@@ -232,6 +229,30 @@ func (g *Gambling) handleReset(user twitch.User) {
 	}
 
 	g.CurrentVote.Votes = make(map[string]string)
+}
+
+// handle a call to stats generation (public)
+func (g *Gambling) handleStat(user twitch.User, args []string) {
+
+	if !checkPermission(user.Name, g.Config.Admins) {
+		return
+	}
+
+	if link, err := createStat(g.Config.Pastebin.Key, g.CurrentVote); err == nil {
+		message := fmt.Sprintf("Stats generated, see %s", link)
+		if len(args) >= 1 {
+			if strings.ToLower(args[0]) == "private" {
+				fmt.Println(message)
+				return
+			}
+		}
+
+		g.say(message)
+
+	} else {
+		fmt.Println("Error while generating pastebin")
+		fmt.Println(err)
+	}
 }
 
 // Is a vote valid ?

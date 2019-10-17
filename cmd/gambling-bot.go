@@ -1,15 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
 	"os"
-	"strconv"
-	"strings"
 
 	internal "github.com/Namarand/grambling-bot/internal/app"
-	"github.com/Ronmi/pastebin"
 	twitch "github.com/gempir/go-twitch-irc/v2"
 	"github.com/urfave/cli"
 )
@@ -75,53 +71,6 @@ func handleRoll(user twitch.User, contents []string) {
 		return
 	}
 	sayAdmin("The winner is... " + winners[rand.Intn(len(winners))])
-}
-
-func createStat() (string, error) {
-	api := pastebin.API{Key: KEY_PASTEBIN}
-
-	transformed := make(map[string][]string)
-	for user, value := range vote.Vote {
-		transformed[value] = append(transformed[value], user)
-	}
-	sum := 0
-	for _, users := range transformed {
-		sum += len(users)
-	}
-	str := "Total amount: " + strconv.Itoa(sum) + "\n"
-	for value, users := range transformed {
-		str += value + " (" + strconv.Itoa(len(users)) + "): " + strings.Join(users, ", ") + "\n"
-	}
-	fmt.Println(str)
-	return api.Post(&pastebin.Paste{
-		Title:    "Stat Vote",
-		Content:  str,
-		ExpireAt: pastebin.In1D,
-	})
-}
-
-func handleStat(user twitch.User) {
-	if !checkPermission(user) {
-		return
-	}
-	if link, err := createStat(); err == nil {
-		sayAdmin(link)
-	} else {
-		fmt.Println("Error while generating pastebin")
-		fmt.Println(err)
-	}
-}
-
-func handlePrivateStat(user twitch.User) {
-	if !checkPermission(user) {
-		return
-	}
-	if link, err := createStat(); err == nil {
-		fmt.Println(link)
-	} else {
-		fmt.Println("Error while generating pastebin")
-		fmt.Println(err)
-	}
 }
 
 func main() {
