@@ -205,6 +205,7 @@ func (g *Gambling) handleVote(user twitch.User, args []string) {
 
 }
 
+// Is a vote valid ?
 func (g *Gambling) isVoteValid(vote string) bool {
 
 	// Loop over possibilities
