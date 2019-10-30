@@ -19,10 +19,17 @@ type TwitchCreds struct {
 	Username string
 }
 
+// Stats is a structure containing config related to stats generation
+type Stats struct {
+	// Base dir path used to store generated files
+	Dir string
+}
+
 // Conf is a meta structure containing all nedded configuration for a gambling instance
 type Conf struct {
 	Pastebin PastebinCreds
 	Twitch   TwitchCreds
+	Stats    Stats
 	Admins   []string
 	Hello    string
 	Prefix   string
