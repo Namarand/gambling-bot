@@ -52,7 +52,7 @@ func statsToFile(stats string, dir string) error {
 	dt := time.Now()
 
 	// forge base dir
-	basedir := fmt.Sprintf("%s/%s", dir, dt.Format("01-02-2000"))
+	basedir := fmt.Sprintf("%s/%s", dir, dt.Format("2006-01-02"))
 	// create base dir if not exists
 	if _, err := os.Stat(basedir); os.IsNotExist(err) {
 		os.Mkdir(basedir, 0766)
