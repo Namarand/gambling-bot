@@ -32,3 +32,15 @@ func createStat(key string, votes *Vote) (string, error) {
 		ExpireAt: pastebin.In1D,
 	})
 }
+
+// Push stats to pastebin as string
+func statsToPastebin(key string, stats string) (string, error) {
+	api := pastebin.API{Key: key}
+
+	return api.Post(&pastebin.Paste{
+		Title:    "Stat Vote",
+		Content:  stats,
+		ExpireAt: pastebin.In1D,
+	})
+
+}
