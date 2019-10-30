@@ -7,9 +7,8 @@ import (
 	"github.com/Ronmi/pastebin"
 )
 
-// Create stats from vote and paste it to pastebin
-func createStat(key string, votes *Vote) (string, error) {
-	api := pastebin.API{Key: key}
+// Create stats from vote
+func createStat(votes *Vote) string {
 
 	transformed := make(map[string][]string)
 	for user, value := range votes.Votes {
@@ -26,11 +25,8 @@ func createStat(key string, votes *Vote) (string, error) {
 		str += value + " (" + strconv.Itoa(len(users)) + "): " + strings.Join(users, ", ") + "\n"
 	}
 
-	return api.Post(&pastebin.Paste{
-		Title:    "Stat Vote",
-		Content:  str,
-		ExpireAt: pastebin.In1D,
-	})
+	return str
+
 }
 
 // Push stats to pastebin as string
