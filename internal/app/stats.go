@@ -1,8 +1,11 @@
 package app
 
 import (
+	"fmt"
+	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Ronmi/pastebin"
 )
@@ -38,5 +41,34 @@ func statsToPastebin(key string, stats string) (string, error) {
 		Content:  stats,
 		ExpireAt: pastebin.In1D,
 	})
+
+}
+
+// Write stats into a file inside a base directory
+func statsToFile(stats string, dir string) error {
+
+	// Create a directory using current date
+	// get current date
+	dt := time.Now()
+
+	// forge base dir
+	basedir := fmt.Sprintf("%s/%s", dir, dt.Format("01-02-2000"))
+	// create base dir if not exists
+	if _, err := os.Stat(basedir); os.IsNotExist(err) {
+		os.Mkdir(basedir, 0766)
+	}
+
+	// Create file
+	f, err := os.Create(fmt.Sprintf("%s/stats", basedir))
+	if err != nil {
+		return err
+	}
+	// Ensure file is closed at the end of the func
+	defer f.Close()
+
+	// Write stuff and return err
+	_, err = f.WriteString(stats)
+
+	return err
 
 }

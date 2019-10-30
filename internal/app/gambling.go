@@ -256,8 +256,11 @@ func (g *Gambling) handleStat(user twitch.User, args []string) {
 	if len(args) >= 1 {
 		if strings.ToLower(args[0]) == "private" {
 			// Do it in private
-			// TODO: write into a file
-			fmt.Println(stats)
+			err := statsToFile(stats, g.Config.Stats.Dir)
+			if err != nil {
+				fmt.Println(err)
+				g.say("Error generating stats in private mode")
+			}
 			g.say("Stats generated in private mode")
 			return
 		}
