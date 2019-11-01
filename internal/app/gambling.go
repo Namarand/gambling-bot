@@ -250,7 +250,7 @@ func (g *Gambling) handleStat(user twitch.User, args []string) {
 		return
 	}
 
-	// create stats and sotre it into a string
+	// create stats and store it into a string
 	stats := createStat(g.CurrentVote)
 	// Check args, if private mode is requested
 	if len(args) >= 1 {
