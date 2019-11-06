@@ -243,28 +243,37 @@ func (g *Gambling) handleReset(user twitch.User) {
 	g.CurrentVote.Votes = make(map[string]string)
 }
 
-// handle a call to stats generation (public)
+// handle a call to stats generation (public or private)
 func (g *Gambling) handleStat(user twitch.User, args []string) {
 
 	if !checkPermission(user.Name, g.Config.Admins) {
 		return
 	}
 
-	if link, err := createStat(g.Config.Pastebin.Key, g.CurrentVote); err == nil {
-		message := fmt.Sprintf("Stats generated, see %s", link)
-		if len(args) >= 1 {
-			if strings.ToLower(args[0]) == "private" {
-				fmt.Println(message)
-				return
+	// create stats and store it into a string
+	stats := createStat(g.CurrentVote)
+	// Check args, if private mode is requested
+	if len(args) >= 1 {
+		if strings.ToLower(args[0]) == "private" {
+			// Do it in private
+			err := statsToFile(stats, g.Config.Stats.Dir)
+			if err != nil {
+				fmt.Println(err)
+				g.say("Error generating stats in private mode")
 			}
+			g.say("Stats generated in private mode")
+			return
 		}
-
-		g.say(message)
-
 	} else {
-		fmt.Println("Error while generating pastebin")
-		fmt.Println(err)
+		// If not in private mode, go public, and paste to pastebin
+		link, err := statsToPastebin(g.Config.Pastebin.Key, stats)
+		if err != nil {
+			g.say("Error generating stats in public mode")
+			fmt.Println(err)
+		}
+		g.say(fmt.Sprintf("Stats generated in public mode, check it at : %s", link))
 	}
+
 }
 
 // handle roll and select winner
