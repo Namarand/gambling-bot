@@ -22,3 +22,16 @@ steps:
       - go mod vendor
       - cd cmd
       - go build gambling-bot.go
+
+  - name: docker
+    image: plugins/docker
+    settings:
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      repo: papey/gambling-bot
+      auto_tag: true
+      build_args:
+        - REVISION=$$CI_COMMIT
+        - RELEASE_TAG=$$CI_TAG
