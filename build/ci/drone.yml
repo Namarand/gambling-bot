@@ -1,0 +1,24 @@
+workspace:
+  base: /go
+  path: src/github.com/Namarand/gambling-bot
+
+kind: pipeline
+name: main
+
+steps:
+  - name: test
+    image: golang
+    environment:
+      GO111MODULE: on
+    commands:
+      - go mod vendor
+      - go test ./internal/app
+
+  - name: build
+    image: golang
+    environment:
+      GO111MODULE: on
+    commands:
+      - go mod vendor
+      - cd cmd
+      - go build gambling-bot.go
