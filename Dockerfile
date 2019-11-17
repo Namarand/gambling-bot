@@ -1,5 +1,5 @@
 # Stage 1 : Build
-# Use goalng base image
+# Use golang base image
 FROM golang:stretch as builder
 
 # Declare args
