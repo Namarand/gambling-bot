@@ -1,5 +1,5 @@
 # Stage 1 : Build
-# Use goalng base image
+# Use golang base image
 FROM golang:stretch as builder
 
 # Declare args
@@ -31,6 +31,8 @@ RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o gambling-bot
 # Stage 2 : run !
 FROM debian:stretch
 
+RUN useradd -ms /bin/bash gamble
+
 # Get certs
 COPY --from=builder /etc/ssl/certs /etc/ssl/certs
 
@@ -45,6 +47,8 @@ LABEL org.opencontainers.image.description="gambling-bot runtime"
 
 # Copy our static executable.
 COPY --from=builder /opt/gambling-bot/cmd/gambling-bot /opt/gambling-bot
+
+USER gamble
 
 # Run the binary
 ENTRYPOINT ["/opt/gambling-bot"]
