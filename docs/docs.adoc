@@ -1,0 +1,83 @@
+= Gambling-Bot : User Documentation
+:toc:
+
+== Overview
+
+Gambling-bot is a Twitch bot handling simple vote mechanism
+
+== Commands
+
+Every commands starts with a prefix, by default this prefix is set to `!gamble`
+
+=== Admin Commands
+
+All the command listed below needs administrator permission
+
+==== Create
+
+`create` command is used to create a new vote instance, takes all vote possibilities as arguments
+
+ !gamble create first second third [...]
+
+_Example :_
+
+ !gamble create val pl
+
+==== Close
+
+`close` command is used to close a vote, takes no argument
+
+ !gamble close
+
+==== Roll
+
+`roll` command uses one argument from the vote to determine a winner
+
+ !gamble roll first
+
+_Example :_
+
+ !gamble roll pl
+
+==== Delete
+
+`delete` command is used to delete a vote (use `create` to start a new vote)
+
+ !gamble delete
+
+==== Reset
+
+`reset` command is used to reset vote without deleteting it (no need to use `create`)
+
+ !gamble reset
+
+==== Stats
+
+`stats` command is used to generate statistics about the current vote. This
+command takes an optional argument `private`.
+
+ !gamble stats
+
+Will generate stats and publish it to pastebin, and push pastebin link to
+Twitch discussion channel, making it available for everyone
+
+or
+
+ !gamble stats private
+
+Will generate a secret file, available using a basic authentification
+(user/password) on a dedicated web server. Contact your administrator for more
+information.
+
+=== User Commands
+
+This command does not need administration privileges
+
+==== Vote
+
+
+`vote` is used to vote for a possibility
+
+ !gamble vote first
+
+Please be careful and make a **valid** choice.
