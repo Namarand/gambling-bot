@@ -81,3 +81,5 @@ This command does not need administration privileges
  !gamble vote first
 
 Please be careful and make a **valid** choice.
+
+**While a vote is open, if you vote multiple times, you override your choice with the new one**
