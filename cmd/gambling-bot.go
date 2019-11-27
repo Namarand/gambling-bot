@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	internal "github.com/Namarand/grambling-bot/internal/app"
+	internal "github.com/Namarand/gambling-bot/internal/app"
 	"github.com/urfave/cli"
 )
 
