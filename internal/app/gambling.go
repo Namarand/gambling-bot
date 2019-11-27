@@ -212,10 +212,13 @@ func (g *Gambling) handleVote(user twitch.User, args []string) {
 		fmt.Println("Expected one argument to vote...")
 	}
 
+	// Ensure vote is lowercase
+	vote := strings.ToLower(args[0])
+
 	// Check if vote is valid
-	if g.isVoteValid(args[0]) {
+	if g.isVoteValid(vote) {
 		// If it is add it
-		g.CurrentVote.Votes[user.Name] = args[0]
+		g.CurrentVote.Votes[user.Name] = vote
 	} else {
 		fmt.Println(user.Name + ": Invalid vote: got '" + args[0] + "'")
 	}
