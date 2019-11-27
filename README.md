@@ -26,5 +26,5 @@ go build gambling-bot.go -o gambling-bot
 ## Running the tests
 
 ```sh
-go test github.com/Namarand/grambling-bot/internal/app
+go test github.com/Namarand/gambling-bot/internal/app
 ```

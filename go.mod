@@ -1,4 +1,4 @@
-module github.com/Namarand/grambling-bot
+module github.com/Namarand/gambling-bot
 
 go 1.13
 
