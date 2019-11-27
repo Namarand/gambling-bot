@@ -22,3 +22,11 @@ func TestExtractCommand(t *testing.T) {
 	}
 
 }
+
+func TestWrongCommand(t *testing.T) {
+
+	var message = "!gamble"
+
+	extractCommand(message)
+
+}
