@@ -54,6 +54,10 @@ func extractCommand(message string) (string, []string) {
 
 	contents := strings.Fields(message)
 
+	if len(contents) == 1 {
+		return "", nil
+	}
+
 	if len(contents) >= 3 {
 		return contents[1], contents[2:]
 	}
