@@ -212,8 +212,9 @@ func (g *Gambling) handleVote(user twitch.User, args []string) {
 	}
 
 	// Ensure there is args
-	if args != nil && len(args) < 1 {
+	if args == nil || len(args) < 1 {
 		fmt.Println("Expected one argument to vote...")
+		return
 	}
 
 	// Ensure vote is lowercase
