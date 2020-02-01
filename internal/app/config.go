@@ -33,6 +33,7 @@ type Conf struct {
 	Admins   []string
 	Hello    string
 	Prefix   string
+	Verified bool
 }
 
 // getConf method reads a config file and return and fill a Conf struct

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
+	"time"
 
 	twitch "github.com/gempir/go-twitch-irc/v2"
 )
@@ -105,7 +106,7 @@ func (g *Gambling) twitchOnEventSetup() {
 			g.handleRoll(message.User, args)
 			break
 		case "vote":
-			g.handleVote(message.User, args)
+			g.handleVote(message.User, args, g.Config.Verified)
 			break
 		case "delete":
 			g.handleDelete(message.User)
@@ -195,7 +196,10 @@ func (g *Gambling) handleClose(user twitch.User) {
 }
 
 // handle a vote
-func (g *Gambling) handleVote(user twitch.User, args []string) {
+func (g *Gambling) handleVote(user twitch.User, args []string, verified bool) {
+
+	// create a date value
+	date := time.Now()
 
 	// Ensure the vote is open
 	if !g.CurrentVote.IsOpen {
@@ -216,8 +220,18 @@ func (g *Gambling) handleVote(user twitch.User, args []string) {
 	if g.isVoteValid(vote) {
 		// If it is add it
 		g.CurrentVote.Votes[user.Name] = vote
+		// ensure bot is verified to send whispers
+		if verified {
+			g.Twitch.Whisper(user.Name,
+				fmt.Sprintf("For your information, I correctly handled your vote for %s (sent on %d-%02d-%02d)",
+					vote, date.Year(), date.Month(), date.Day()))
+		}
 	} else {
 		fmt.Println(user.Name + ": Invalid vote: got '" + args[0] + "'")
+		// ensure bot is verified to send whispers
+		if verified {
+			g.Twitch.Whisper(user.Name, fmt.Sprintf("Option %s is invalid", vote))
+		}
 	}
 
 }

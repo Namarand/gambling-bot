@@ -10,3 +10,4 @@ admins:
   - "val_pl_magicarenafr"
 hello: "Hey there ! Ready to gamble ?"
 prefix: "!gamble"
+verified: true
