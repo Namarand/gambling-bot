@@ -1,10 +1,15 @@
 package app
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"strings"
 	"time"
+
+	"context"
+
+	"golang.org/x/time/rate"
 
 	twitch "github.com/gempir/go-twitch-irc/v2"
 )
@@ -24,6 +29,8 @@ type Gambling struct {
 	Twitch *twitch.Client
 	// Vote
 	CurrentVote *Vote
+	// whisper rate limiter
+	Wrl *rate.Limiter
 }
 
 // NewGambling func create a new Gambling struct
@@ -45,6 +52,9 @@ func NewGambling(confPath string) *Gambling {
 
 	// init vote
 	g.CurrentVote = new(Vote)
+
+	// setup rate limiter for whispers
+	g.Wrl = rate.NewLimiter(rate.Every(20*time.Second), 2)
 
 	return g
 
@@ -145,6 +155,27 @@ func (g *Gambling) say(message string) {
 	g.Twitch.Say(g.Config.Twitch.Channel, message)
 }
 
+// whisper will be used to send whisper to some user with rate limit constraints
+func (g *Gambling) whisper(user string, message string) error {
+
+	// setup a context with a timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	// ensure cancel
+	defer cancel()
+	// wait with context
+	err := g.Wrl.Wait(ctx)
+
+	// check for errors
+	if err != nil {
+		return errors.New("Can not send whisper message, rate limit reached")
+	}
+
+	// if rate limit not reach, send message
+	g.Twitch.Whisper(user, message)
+
+	return err
+}
+
 // say will be used to send informations to twitch channel
 func (g *Gambling) sayAt(message string, users []string) {
 
@@ -222,15 +253,23 @@ func (g *Gambling) handleVote(user twitch.User, args []string, verified bool) {
 		g.CurrentVote.Votes[user.Name] = vote
 		// ensure bot is verified to send whispers
 		if verified {
-			g.Twitch.Whisper(user.Name,
-				fmt.Sprintf("For your information, I correctly handled your vote for %s (sent on %d-%02d-%02d)",
-					vote, date.Year(), date.Month(), date.Day()))
+			message := fmt.Sprintf("For your information, I correctly handled your vote for %s (sent on %d-%02d-%02d)",
+				vote, date.Year(), date.Month(), date.Day())
+			err := g.whisper(user.Name, message)
+			// if an error occur, log it
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		}
 	} else {
-		fmt.Println(user.Name + ": Invalid vote: got '" + args[0] + "'")
 		// ensure bot is verified to send whispers
 		if verified {
-			g.Twitch.Whisper(user.Name, fmt.Sprintf("Option %s is invalid", vote))
+			message := fmt.Sprintf("Option %s is invalid", vote)
+			// if an error occur, log it
+			err := g.whisper(user.Name, message)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		}
 	}
 
