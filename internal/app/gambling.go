@@ -282,8 +282,8 @@ func (g *Gambling) handleStat(user twitch.User, args []string) {
 		// If not in private mode, go public, and paste to pastebin
 		link, err := statsToPastebin(g.Config.Pastebin.Key, stats)
 		if err != nil {
-			g.say("Error generating stats in public mode")
 			fmt.Println(err)
+			g.say("Error generating stats in public mode")
 		}
 		g.say(fmt.Sprintf("Stats generated in public mode, check it at : %s", link))
 	}
