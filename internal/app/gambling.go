@@ -30,7 +30,7 @@ type Gambling struct {
 	// Vote
 	CurrentVote *Vote
 	// whisper rate limiter
-	Wrl *rate.Limiter
+	WhispRL *rate.Limiter
 }
 
 // NewGambling func create a new Gambling struct
@@ -54,7 +54,7 @@ func NewGambling(confPath string) *Gambling {
 	g.CurrentVote = new(Vote)
 
 	// setup rate limiter for whispers
-	g.Wrl = rate.NewLimiter(18, 2)
+	g.WhispRL = rate.NewLimiter(18, 2)
 
 	return g
 
@@ -163,7 +163,7 @@ func (g *Gambling) whisper(user string, message string) error {
 	// ensure cancel
 	defer cancel()
 	// wait with context
-	err := g.Wrl.Wait(ctx)
+	err := g.WhispRL.Wait(ctx)
 
 	// check for errors
 	if err != nil {
