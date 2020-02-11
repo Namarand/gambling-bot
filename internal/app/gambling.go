@@ -378,7 +378,7 @@ func (g *Gambling) handleRoll(user twitch.User, args []string) {
 	}
 
 	if !g.isVoteValid(args[0]) {
-		g.sayAt(fmt.Sprintf("%s is not a correct roll option (choices are : %s", args[0], g.choices()), g.Config.Admins)
+		g.sayAt(fmt.Sprintf("%s is not a correct roll option (choices are : %s)", args[0], g.choices()), g.Config.Admins)
 	}
 
 	winners := []string{}
