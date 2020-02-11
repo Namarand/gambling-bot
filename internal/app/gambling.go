@@ -229,7 +229,7 @@ func (g *Gambling) handleCreate(user twitch.User, args []string) {
 	}
 
 	if len(args) < 2 {
-		g.say("You must pass the possibilities as arguments. (2 at least)")
+		g.say("You need to pass the choices as arguments (2 at least)")
 		return
 	}
 
@@ -237,7 +237,7 @@ func (g *Gambling) handleCreate(user twitch.User, args []string) {
 	g.CurrentVote.Votes = make(map[string]string)
 	g.CurrentVote.Possibilities = lower(args)
 
-	g.say(fmt.Sprintf("There is a new vote! You can vote with '%s vote <vote> (choices are : %s)'", g.Config.Prefix, strings.Join(g.CurrentVote.Possibilities, " or ")))
+	g.say(fmt.Sprintf("There is a new vote! You can vote with '%s vote <vote> (choices are : %s)'", g.Config.Prefix, g.choices()))
 }
 
 // close vote handler
@@ -260,13 +260,13 @@ func (g *Gambling) handleVote(user twitch.User, args []string, verified bool) {
 
 	// Ensure the vote is open
 	if !g.CurrentVote.IsOpen {
-		fmt.Println("Don't try to vote while it's close...")
+		fmt.Println("Warning, vote trigger while close")
 		return
 	}
 
 	// Ensure there is args
 	if args == nil || len(args) < 1 {
-		fmt.Println("Expected one argument to vote...")
+		fmt.Println("Warning, vote with no arguments")
 		return
 	}
 
@@ -290,7 +290,7 @@ func (g *Gambling) handleVote(user twitch.User, args []string, verified bool) {
 	} else {
 		// ensure bot is verified to send whispers
 		if verified {
-			message := fmt.Sprintf("Option %s is invalid", vote)
+			message := fmt.Sprintf("Sorry, but option %s is invalid (choices are : %s)", vote, g.choices())
 			// if an error occur, log it
 			err := g.whisper(user.Name, message)
 			if err != nil {
@@ -338,9 +338,9 @@ func (g *Gambling) handleStat(user twitch.User, args []string) {
 			err := statsToFile(stats, g.Config.Stats.Dir)
 			if err != nil {
 				fmt.Println(err)
-				g.say("Error generating stats in private mode")
+				g.say("Error generating statistics in private mode")
 			}
-			g.say("Stats generated in private mode")
+			g.say("Statistics generated in private mode")
 			return
 		}
 	} else {
@@ -348,9 +348,9 @@ func (g *Gambling) handleStat(user twitch.User, args []string) {
 		link, err := statsToPastebin(g.Config.Pastebin.Key, stats)
 		if err != nil {
 			fmt.Println(err)
-			g.say("Error generating stats in public mode")
+			g.say("Error generating statistics in public mode")
 		}
-		g.say(fmt.Sprintf("Stats generated in public mode, check it at : %s", link))
+		g.say(fmt.Sprintf("Statistics generated in public mode, check it at : %s", link))
 	}
 
 }
@@ -363,22 +363,22 @@ func (g *Gambling) handleRoll(user twitch.User, args []string) {
 	}
 
 	if len(g.CurrentVote.Votes) == 0 {
-		g.sayAt("There is no vote", g.Config.Admins)
+		g.sayAt("You can not roll since there is no vote", g.Config.Admins)
 		return
 	}
 
 	if g.CurrentVote.IsOpen {
-		g.sayAt("The vote isn't closed", g.Config.Admins)
+		g.sayAt(fmt.Sprintf("Hey ! The vote isn't closed ! Close it using command : '%s close'", g.Config.Prefix), g.Config.Admins)
 		return
 	}
 
 	if len(args) < 1 {
-		g.sayAt("You must specify the winner", g.Config.Admins)
+		g.sayAt(fmt.Sprintf("You must specify the winner (choices are : %s)", g.choices()), g.Config.Admins)
 		return
 	}
 
 	if !g.isVoteValid(args[0]) {
-		g.sayAt(fmt.Sprintf("This is not a correct option: %s", args[0]), g.Config.Admins)
+		g.sayAt(fmt.Sprintf("%s is not a correct roll option (choices are : %s", args[0], g.choices), g.Config.Admins)
 	}
 
 	winners := []string{}
@@ -389,11 +389,11 @@ func (g *Gambling) handleRoll(user twitch.User, args []string) {
 	}
 
 	if len(winners) == 0 {
-		g.sayAt("No one vote for this one...", g.Config.Admins)
+		g.sayAt("Sorry but, no one vote for this one...", g.Config.Admins)
 		return
 	}
 
-	g.sayAt(fmt.Sprintf("The winner is... %s", winners[rand.Intn(len(winners))]), g.Config.Admins)
+	g.sayAt(fmt.Sprintf("And... The winner is... %s", winners[rand.Intn(len(winners))]), g.Config.Admins)
 
 }
 

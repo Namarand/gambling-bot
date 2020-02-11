@@ -23,7 +23,7 @@ func createStat(votes *Vote) string {
 		sum += len(users)
 	}
 
-	str := "Total amount: " + strconv.Itoa(sum) + "\n"
+	str := "Total: " + strconv.Itoa(sum) + "\n"
 	for value, users := range transformed {
 		str += value + " (" + strconv.Itoa(len(users)) + "): " + strings.Join(users, ", ") + "\n"
 	}
