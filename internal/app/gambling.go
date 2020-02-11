@@ -54,7 +54,7 @@ func NewGambling(confPath string) *Gambling {
 	g.CurrentVote = new(Vote)
 
 	// setup rate limiter for whispers
-	g.Wrl = rate.NewLimiter(rate.Every(20*time.Second), 2)
+	g.Wrl = rate.NewLimiter(18, 2)
 
 	return g
 
@@ -159,7 +159,7 @@ func (g *Gambling) say(message string) {
 func (g *Gambling) whisper(user string, message string) error {
 
 	// setup a context with a timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	// ensure cancel
 	defer cancel()
 	// wait with context
