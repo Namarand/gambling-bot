@@ -31,6 +31,8 @@ type Gambling struct {
 	CurrentVote *Vote
 	// whisper rate limiter
 	WhispRL *rate.Limiter
+	// Warning rate limiter
+	WarnRL *rate.Limiter
 }
 
 // NewGambling func create a new Gambling struct
@@ -56,6 +58,10 @@ func NewGambling(confPath string) *Gambling {
 	// setup rate limiter for whispers
 	// 18 times per second + burst of 2
 	g.WhispRL = rate.NewLimiter(18, 2)
+
+	// setup rate limiter for warning messages
+	// One every 15 seconds
+	g.WarnRL = rate.NewLimiter(rate.Every(15*time.Second), 1)
 
 	return g
 
@@ -168,7 +174,21 @@ func (g *Gambling) whisper(user string, message string) error {
 
 	// check for errors
 	if err != nil {
-		return errors.New("Can not send whisper message, rate limit reached")
+		// setup a context with a timeout
+		// do not wait for a long time
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+		// ensure cancel
+		defer cancel()
+		// wait with context
+		err := g.WarnRL.Wait(ctx)
+		if err != nil {
+			fmt.Println(err)
+			return errors.New("Can not send whisper nor warning message, rate limit reached")
+		}
+
+		g.say("Warning, whisper rate limit reached, you may not receive your vote acknowledgement")
+
+		return errors.New("Can not send whisper message, rate limit reached, warning message send")
 	}
 
 	// if rate limit not reach, send message
