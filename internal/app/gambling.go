@@ -162,6 +162,11 @@ func (g *Gambling) say(message string) {
 	g.Twitch.Say(g.Config.Twitch.Channel, message)
 }
 
+// choices function is used to return all possibilites in a vote as a string
+func (g *Gambling) choices() string {
+	return strings.Join(g.CurrentVote.Possibilities, " or ")
+}
+
 // whisper will be used to send whisper to some user with rate limit constraints
 func (g *Gambling) whisper(user string, message string) error {
 
