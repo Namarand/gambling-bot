@@ -14,11 +14,45 @@ import (
 	twitch "github.com/gempir/go-twitch-irc/v2"
 )
 
+// Size ack buffered chan
+const bufferSize = 500
+
 // Vote is a structure handling all voting params and status
 type Vote struct {
 	IsOpen        bool
 	Possibilities []string
 	Votes         map[string]string
+	Acks          Acks
+}
+
+// Acks is used to store and send ack messages stored if rate limit is reached
+type Acks struct {
+	Buffer chan VoteAck
+	WIP    bool
+	Drop   chan bool
+}
+
+// NewAcks is used to init a Acks struct
+func NewAcks() Acks {
+	return Acks{
+		Buffer: make(chan VoteAck, bufferSize),
+		WIP:    false,
+		Drop:   make(chan bool),
+	}
+}
+
+// VoteAck is a struct containing vote acknolegment send later if rate limit is reached
+type VoteAck struct {
+	message  string
+	Username string
+}
+
+// NewVoteAck is used to init a VoteAck struct
+func NewVoteAck(message string, username string) VoteAck {
+	return VoteAck{
+		message:  message,
+		Username: username,
+	}
 }
 
 // Gambling is a meta structure containing all the stuff needed by a Gambling instance
@@ -56,8 +90,8 @@ func NewGambling(confPath string) *Gambling {
 	g.CurrentVote = new(Vote)
 
 	// setup rate limiter for whispers
-	// 18 times per second + burst of 2
-	g.WhispRL = rate.NewLimiter(18, 2)
+	// 19 times per second, burst set to 1
+	g.WhispRL = rate.NewLimiter(19, 1)
 
 	// setup rate limiter for warning messages
 	// One every 15 seconds
@@ -191,7 +225,7 @@ func (g *Gambling) whisper(user string, message string) error {
 			return errors.New("Can not send whisper nor warning message, rate limit reached")
 		}
 
-		g.say("Warning, whisper rate limit reached, you may not receive your vote acknowledgement")
+		g.say("Warning, whisper rate limit reached, you may receive your vote acknowledgement later")
 
 		return errors.New("Can not send whisper message, rate limit reached, warning message send")
 	}
@@ -211,6 +245,58 @@ func (g *Gambling) sayAt(message string, users []string) {
 		at = at + fmt.Sprintf("@%s ", u)
 	}
 	g.Twitch.Say(g.Config.Twitch.Channel, fmt.Sprintf("%s : %s", at, message))
+}
+
+// ackMessage is used to generated an ack message
+func ackMessage(valid bool, vote string) string {
+	// get current date
+	date := time.Now()
+
+	// tail of the message, used to specify sending date, since Twitch UI not clear about this
+	tail := fmt.Sprintf("(sent on %d-%02d-%02d)", date.Year(), date.Month(), date.Day())
+
+	// return a message for a valid vote
+	if valid {
+		return fmt.Sprintf("For your information, I correctly handled your vote for %s", vote) + " " + tail
+	}
+
+	// return a kind error message if vote if note valid
+	return "Sorry but the vode command you send is not valid, you may have made a mistake, please retry" + " " + tail
+
+}
+
+// SendAcks is used to send Ack accumulted while rate limit is reached
+func (g *Gambling) SendAcks() {
+
+	// Mark Ack sending jobs as pending
+	g.CurrentVote.Acks.WIP = true
+
+	// loop until a drop is received
+	for {
+		select {
+		// if a Drop inscrution is received, leave
+		case <-g.CurrentVote.Acks.Drop:
+			return
+		// if an ack is received handle it
+		case ack, ok := <-g.CurrentVote.Acks.Buffer:
+			// if channel is empty juste leave
+			if !ok {
+				// Mark ack sending jobs as done
+				g.CurrentVote.Acks.WIP = false
+				return
+			}
+
+			// Ensure a sleep of half a second between each messages, in order to be sure to not reach rate limit
+			time.Sleep((200 * time.Millisecond))
+
+			// try sending message from acks queue
+			err := g.whisper(ack.Username, ack.message)
+			if err != nil {
+				// If rate limit is reached drop and log
+				fmt.Println("Error sending ACKs, rate limit is reached, message dropped")
+			}
+		}
+	}
 }
 
 // Handlers for all the things !
@@ -236,6 +322,8 @@ func (g *Gambling) handleCreate(user twitch.User, args []string) {
 	g.CurrentVote.IsOpen = true
 	g.CurrentVote.Votes = make(map[string]string)
 	g.CurrentVote.Possibilities = lower(args)
+	// Ensure a 500 items long ACK queue
+	g.CurrentVote.Acks = NewAcks()
 
 	g.say(fmt.Sprintf("There is a new vote! You can vote with '%s vote <vote> (choices are : %s)'", g.Config.Prefix, g.choices()))
 }
@@ -248,15 +336,21 @@ func (g *Gambling) handleClose(user twitch.User) {
 	}
 
 	g.CurrentVote.IsOpen = false
+
+	// close channel
+	close(g.CurrentVote.Acks.Buffer)
+
+	// unpile, if verified
+	if g.Config.Verified {
+		go g.SendAcks()
+	}
+
 	g.say("The vote is now closed!")
 
 }
 
 // handle a vote
 func (g *Gambling) handleVote(user twitch.User, args []string, verified bool) {
-
-	// create a date value
-	date := time.Now()
 
 	// Ensure the vote is open
 	if !g.CurrentVote.IsOpen {
@@ -266,7 +360,14 @@ func (g *Gambling) handleVote(user twitch.User, args []string, verified bool) {
 
 	// Ensure there is args
 	if args == nil || len(args) < 1 {
-		fmt.Println("Warning, vote with no arguments")
+		if verified {
+			message := ackMessage(false, "")
+			err := g.whisper(user.Name, message)
+			// if an error occur, rate limit is reached try later and add it to ack queue
+			if err != nil {
+				g.CurrentVote.Acks.Buffer <- NewVoteAck(message, user.Name)
+			}
+		}
 		return
 	}
 
@@ -279,22 +380,21 @@ func (g *Gambling) handleVote(user twitch.User, args []string, verified bool) {
 		g.CurrentVote.Votes[user.Name] = vote
 		// ensure bot is verified to send whispers
 		if verified {
-			message := fmt.Sprintf("For your information, I correctly handled your vote for %s (sent on %d-%02d-%02d)",
-				vote, date.Year(), date.Month(), date.Day())
+			message := ackMessage(true, vote)
 			err := g.whisper(user.Name, message)
-			// if an error occur, log it
+			// if an error occur, rate limit is reached try later and add it to ack queue
 			if err != nil {
-				fmt.Println(err.Error())
+				g.CurrentVote.Acks.Buffer <- NewVoteAck(message, user.Name)
 			}
 		}
 	} else {
 		// ensure bot is verified to send whispers
 		if verified {
-			message := fmt.Sprintf("Sorry, but option %s is invalid (choices are : %s)", vote, g.choices())
-			// if an error occur, log it
+			message := ackMessage(false, "")
 			err := g.whisper(user.Name, message)
+			// if an error occur, rate limit is reached try later and add it to ack queue
 			if err != nil {
-				fmt.Println(err.Error())
+				g.CurrentVote.Acks.Buffer <- NewVoteAck(message, user.Name)
 			}
 		}
 	}
@@ -308,6 +408,13 @@ func (g *Gambling) handleDelete(user twitch.User) {
 		return
 	}
 
+	// if there is a working job sending acks
+	if g.CurrentVote.Acks.WIP {
+		// Drop all jobs
+		g.CurrentVote.Acks.Drop <- true
+	}
+
+	// Create a new empty vote
 	g.CurrentVote = new(Vote)
 
 }
@@ -318,6 +425,14 @@ func (g *Gambling) handleReset(user twitch.User) {
 	if !checkPermission(user.Name, g.Config.Admins) {
 		return
 	}
+
+	// if there is a working job sending acks
+	if g.CurrentVote.Acks.WIP {
+		// Drop all jobs
+		g.CurrentVote.Acks.Drop <- true
+	}
+
+	g.CurrentVote.Acks.Buffer = make(chan VoteAck, bufferSize)
 
 	g.CurrentVote.Votes = make(map[string]string)
 }
