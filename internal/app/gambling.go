@@ -169,7 +169,8 @@ func (g *Gambling) twitchOnEventSetup() {
 			g.handleStat(message.User, args)
 			break
 		default:
-			fmt.Println("Warning: received an unsupported function")
+			fmt.Println("Warning: received an unsupported command")
+			g.say("Sorry but this is not a supported command")
 		}
 
 	})
