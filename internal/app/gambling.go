@@ -262,7 +262,7 @@ func ackMessage(valid bool, vote string) string {
 	}
 
 	// return a kind error message if vote if note valid
-	return "Sorry but the vode command you send is not valid, you may have made a mistake, please retry" + " " + tail
+	return "Sorry but the vote command you send is not valid, you may have made a mistake, please retry" + " " + tail
 
 }
 
