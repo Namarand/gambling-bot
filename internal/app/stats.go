@@ -10,21 +10,34 @@ import (
 	"github.com/Ronmi/pastebin"
 )
 
+// Statistics is a struct containing generated stats for a given vote
+type Statistics struct {
+	Total       int
+	Transformed map[string][]string
+}
+
+// NewStatistics if used to transform a vote into a statistics struct
+func NewStatistics(votes *Vote) Statistics {
+
+	tr := make(map[string][]string)
+	for u, v := range votes.Votes {
+		tr[v] = append(tr[v], u)
+	}
+
+	return Statistics{
+		Total:       len(votes.Votes),
+		Transformed: tr,
+	}
+
+}
+
 // Create stats from vote
 func createStat(votes *Vote) string {
 
-	transformed := make(map[string][]string)
-	for user, value := range votes.Votes {
-		transformed[value] = append(transformed[value], user)
-	}
+	stats := NewStatistics(votes)
 
-	sum := 0
-	for _, users := range transformed {
-		sum += len(users)
-	}
-
-	str := "Total: " + strconv.Itoa(sum) + "\n"
-	for value, users := range transformed {
+	str := "Total: " + strconv.Itoa(stats.Total) + "\n"
+	for value, users := range stats.Transformed {
 		str += value + " (" + strconv.Itoa(len(users)) + "): " + strings.Join(users, ", ") + "\n"
 	}
 

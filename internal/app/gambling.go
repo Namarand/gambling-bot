@@ -345,7 +345,15 @@ func (g *Gambling) handleClose(user twitch.User) {
 		go g.SendAcks()
 	}
 
-	g.say("The vote is now closed!")
+	st := NewStatistics(g.CurrentVote)
+
+	var parts []string
+
+	for k, v := range st.Transformed {
+		parts = append(parts, fmt.Sprintf("%s : %d (%.2f%%)", k, len(v), (float64(len(v))/float64(st.Total))*100))
+	}
+
+	g.say("Vote is now closed, time for statistics ! " + fmt.Sprintf("Participants : %d", st.Total) + " - " + strings.Join(parts, ", "))
 
 }
 
