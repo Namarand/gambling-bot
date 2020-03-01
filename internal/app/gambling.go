@@ -286,6 +286,9 @@ func (g *Gambling) SendAcks() {
 				return
 			}
 
+			// Ensure a sleep of half a second between each messages, in order to be sure to not reach rate limit
+			time.Sleep((200 * time.Millisecond))
+
 			// try sending message from acks queue
 			err := g.whisper(ack.Username, ack.message)
 			if err != nil {
