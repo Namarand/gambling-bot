@@ -1,6 +1,7 @@
 package app
 
 import (
+	"sync"
 	"testing"
 )
 
@@ -29,4 +30,23 @@ func TestWrongCommand(t *testing.T) {
 
 	extractCommand(message)
 
+}
+
+func TestVote(t *testing.T) {
+	g := &Gambling{
+		CurrentVote: &Vote{
+			Possibilities: make([]string, 0),
+			Votes:         make(map[string]string),
+			Acks:          make(chan VoteAck),
+			Drop:          make(chan bool),
+		},
+	}
+	wait := sync.WaitGroup{}
+	wait.Add(1)
+	go func() {
+		g.SendAcks()
+		wait.Done()
+	}()
+	g.CurrentVote.Drop <- true
+	wait.Wait()
 }
