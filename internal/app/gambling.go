@@ -237,7 +237,7 @@ func (g *Gambling) whisper(user string, message string) error {
 	return err
 }
 
-// say will be used to send informations to twitch channel
+// sayAt will be used to send messages to twitch channel with mentions to users passed as arguments
 func (g *Gambling) sayAt(message string, users []string) {
 
 	at := ""
