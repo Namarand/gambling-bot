@@ -335,6 +335,12 @@ func (g *Gambling) handleClose(user twitch.User) {
 		return
 	}
 
+	// Check if vote is open
+	if !g.CurrentVote.IsOpen {
+		g.say("Do not try to close an alreay closed vote !")
+		return
+	}
+
 	g.CurrentVote.IsOpen = false
 
 	// close channel
