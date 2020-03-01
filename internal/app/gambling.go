@@ -360,7 +360,14 @@ func (g *Gambling) handleVote(user twitch.User, args []string, verified bool) {
 
 	// Ensure there is args
 	if args == nil || len(args) < 1 {
-		fmt.Println("Warning, vote with no arguments")
+		if verified {
+			message := ackMessage(false, "")
+			err := g.whisper(user.Name, message)
+			// if an error occur, rate limit is reached try later and add it to ack queue
+			if err != nil {
+				g.CurrentVote.Acks.Buffer <- NewVoteAck(message, user.Name)
+			}
+		}
 		return
 	}
 
