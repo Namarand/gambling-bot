@@ -426,6 +426,14 @@ func (g *Gambling) handleReset(user twitch.User) {
 		return
 	}
 
+	// if there is a working job sending acks
+	if g.CurrentVote.Acks.WIP {
+		// Drop all jobs
+		g.CurrentVote.Acks.Drop <- true
+	}
+
+	g.CurrentVote.Acks.Buffer = make(chan VoteAck, bufferSize)
+
 	g.CurrentVote.Votes = make(map[string]string)
 }
 
