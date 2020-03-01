@@ -14,27 +14,43 @@ import (
 	twitch "github.com/gempir/go-twitch-irc/v2"
 )
 
+// Size ack buffered chan
+const bufferSize = 500
+
 // Vote is a structure handling all voting params and status
 type Vote struct {
 	IsOpen        bool
 	Possibilities []string
 	Votes         map[string]string
-	Acks          chan VoteAck
-	Drop          chan bool
+	Acks          Acks
+}
+
+// Acks is used to store and send ack messages stored if rate limit is reached
+type Acks struct {
+	Buffer chan VoteAck
+	WIP    bool
+	Drop   chan bool
+}
+
+// NewAcks is used to init a Acks struct
+func NewAcks() Acks {
+	return Acks{
+		Buffer: make(chan VoteAck, bufferSize),
+		WIP:    false,
+		Drop:   make(chan bool),
+	}
 }
 
 // VoteAck is a struct containing vote acknolegment send later if rate limit is reached
 type VoteAck struct {
-	Valid    bool
-	Vote     string
+	message  string
 	Username string
 }
 
 // NewVoteAck is used to init a VoteAck struct
-func NewVoteAck(valid bool, vote string, username string) VoteAck {
+func NewVoteAck(message string, username string) VoteAck {
 	return VoteAck{
-		Valid:    valid,
-		Vote:     vote,
+		message:  message,
 		Username: username,
 	}
 }
@@ -252,21 +268,26 @@ func ackMessage(valid bool, vote string) string {
 // SendAcks is used to send Ack accumulted while rate limit is reached
 func (g *Gambling) SendAcks() {
 
+	// Mark Ack sending jobs as pending
+	g.CurrentVote.Acks.WIP = true
+
 	// loop until a drop is received
 	for {
 		select {
 		// if a Drop inscrution is received, leave
-		case <-g.CurrentVote.Drop:
+		case <-g.CurrentVote.Acks.Drop:
 			return
 		// if an ack is received handle it
-		case ack, ok := <-g.CurrentVote.Acks:
+		case ack, ok := <-g.CurrentVote.Acks.Buffer:
 			// if channel is empty juste leave
 			if !ok {
+				// Mark ack sending jobs as done
+				g.CurrentVote.Acks.WIP = false
 				return
 			}
 
 			// try sending message from acks queue
-			err := g.whisper(ack.Username, ackMessage(ack.Valid, ack.Vote))
+			err := g.whisper(ack.Username, ack.message)
 			if err != nil {
 				// If rate limit is reached drop and log
 				fmt.Println("Error sending ACKs, rate limit is reached, message dropped")
@@ -299,7 +320,7 @@ func (g *Gambling) handleCreate(user twitch.User, args []string) {
 	g.CurrentVote.Votes = make(map[string]string)
 	g.CurrentVote.Possibilities = lower(args)
 	// Ensure a 500 items long ACK queue
-	g.CurrentVote.Acks = make(chan VoteAck, 500)
+	g.CurrentVote.Acks = NewAcks()
 
 	g.say(fmt.Sprintf("There is a new vote! You can vote with '%s vote <vote> (choices are : %s)'", g.Config.Prefix, g.choices()))
 }
@@ -314,7 +335,7 @@ func (g *Gambling) handleClose(user twitch.User) {
 	g.CurrentVote.IsOpen = false
 
 	// close channel
-	close(g.CurrentVote.Acks)
+	close(g.CurrentVote.Acks.Buffer)
 
 	// unpile, if verified
 	if g.Config.Verified {
@@ -351,19 +372,19 @@ func (g *Gambling) handleVote(user twitch.User, args []string, verified bool) {
 		if verified {
 			message := ackMessage(true, vote)
 			err := g.whisper(user.Name, message)
-			// if an error occur, rate limit is reached try later and queue
+			// if an error occur, rate limit is reached try later and add it to ack queue
 			if err != nil {
-				g.CurrentVote.Acks <- NewVoteAck(true, vote, user.Name)
+				g.CurrentVote.Acks.Buffer <- NewVoteAck(message, user.Name)
 			}
 		}
 	} else {
 		// ensure bot is verified to send whispers
 		if verified {
 			message := ackMessage(false, "")
-			// if an error occur, rate limit is reached try later and queue
 			err := g.whisper(user.Name, message)
+			// if an error occur, rate limit is reached try later and add it to ack queue
 			if err != nil {
-				g.CurrentVote.Acks <- NewVoteAck(false, "", user.Name)
+				g.CurrentVote.Acks.Buffer <- NewVoteAck(message, user.Name)
 			}
 		}
 	}
@@ -377,8 +398,13 @@ func (g *Gambling) handleDelete(user twitch.User) {
 		return
 	}
 
-	g.CurrentVote.Drop <- true
+	// if there is a working job sending acks
+	if g.CurrentVote.Acks.WIP {
+		// Drop all jobs
+		g.CurrentVote.Acks.Drop <- true
+	}
 
+	// Create a new empty vote
 	g.CurrentVote = new(Vote)
 
 }

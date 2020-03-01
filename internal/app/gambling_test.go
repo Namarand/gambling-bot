@@ -37,8 +37,7 @@ func TestVote(t *testing.T) {
 		CurrentVote: &Vote{
 			Possibilities: make([]string, 0),
 			Votes:         make(map[string]string),
-			Acks:          make(chan VoteAck),
-			Drop:          make(chan bool),
+			Acks:          NewAcks(),
 		},
 	}
 	wait := sync.WaitGroup{}
@@ -47,6 +46,6 @@ func TestVote(t *testing.T) {
 		g.SendAcks()
 		wait.Done()
 	}()
-	g.CurrentVote.Drop <- true
+	g.CurrentVote.Acks.Drop <- true
 	wait.Wait()
 }
