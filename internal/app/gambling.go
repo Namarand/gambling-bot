@@ -90,8 +90,8 @@ func NewGambling(confPath string) *Gambling {
 	g.CurrentVote = new(Vote)
 
 	// setup rate limiter for whispers
-	// 19 times per second, no burst
-	g.WhispRL = rate.NewLimiter(19, 0)
+	// 19 times per second, burst set to 1
+	g.WhispRL = rate.NewLimiter(19, 1)
 
 	// setup rate limiter for warning messages
 	// One every 15 seconds
