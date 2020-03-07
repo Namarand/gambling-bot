@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/apex/log"
+
 	"github.com/Ronmi/pastebin"
 )
 
@@ -24,8 +26,14 @@ func NewStatistics(votes *Vote) Statistics {
 		tr[v] = append(tr[v], u)
 	}
 
+	total := len(votes.Votes)
+
+	log.WithFields(log.Fields{
+		"total": total,
+	}).Info("Statistics struct generated")
+
 	return Statistics{
-		Total:       len(votes.Votes),
+		Total:       total,
 		Transformed: tr,
 	}
 
