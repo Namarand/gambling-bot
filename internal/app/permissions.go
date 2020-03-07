@@ -1,5 +1,7 @@
 package app
 
+import "github.com/apex/log"
+
 // Check permission, is the used an admin ?
 func checkPermission(user string, admins []string) bool {
 
@@ -14,5 +16,8 @@ func checkPermission(user string, admins []string) bool {
 
 	// if user is not admin
 	// not ok
+	// log
+	log.WithField("user", user).Warn("User is not listed as admin")
+	// then return
 	return false
 }

@@ -2,7 +2,8 @@ package app
 
 import (
 	"io/ioutil"
-	"log"
+
+	"github.com/apex/log"
 
 	"gopkg.in/yaml.v2"
 )
@@ -42,13 +43,21 @@ func (c *Conf) getConf(path string) *Conf {
 	// Open file
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
-		log.Fatalf("Error opening config file : %s", path)
+		log.WithError(err).Fatalf("Error opening config file : %s", path)
 	}
 	// Unmarshal it into a Conf struct
 	err = yaml.Unmarshal(file, c)
 	if err != nil {
-		log.Fatalf("Error reading config file : %s", path)
+		log.WithError(err).Fatalf("Error reading config file : %s", path)
 	}
+
+	log.WithFields(log.Fields{
+		"Admins":   c.Admins,
+		"Prefix":   c.Prefix,
+		"Verified": c.Verified,
+		"Hello":    c.Hello,
+		"Stats":    c.Stats,
+	}).Info("Parameters from config file")
 
 	return c
 }

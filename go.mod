@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/Ronmi/pastebin v0.0.0-20180209215645-c677cc16dbd7
+	github.com/apex/log v1.1.2
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/gempir/go-twitch-irc/v2 v2.2.2
 	github.com/kr/pretty v0.2.0 // indirect

@@ -11,6 +11,7 @@ import (
 
 	"golang.org/x/time/rate"
 
+	"github.com/apex/log"
 	twitch "github.com/gempir/go-twitch-irc/v2"
 )
 
@@ -169,7 +170,7 @@ func (g *Gambling) twitchOnEventSetup() {
 			g.handleStat(message.User, args)
 			break
 		default:
-			fmt.Println("Warning: received an unsupported command")
+			log.WithField("command", cmd).Warn("Unsupported command received")
 			g.say("Sorry but this is not a supported command")
 		}
 
@@ -189,6 +190,7 @@ func (g *Gambling) join() {
 
 // Start is used to connect a gamble-bot instance to a twitch channel, and start the bot
 func (g *Gambling) Start() error {
+	log.Info("Bot instance is starting")
 	return g.Twitch.Connect()
 }
 
@@ -222,7 +224,11 @@ func (g *Gambling) whisper(user string, message string) error {
 		// wait with context
 		err := g.WarnRL.Wait(ctx)
 		if err != nil {
-			fmt.Println(err)
+			// log as warning
+			log.WithFields(log.Fields{
+				"message": message,
+				"user":    user,
+			}).Warn("Rate limit reached, private message not sent")
 			return errors.New("Can not send whisper nor warning message, rate limit reached")
 		}
 
@@ -233,6 +239,12 @@ func (g *Gambling) whisper(user string, message string) error {
 
 	// if rate limit not reach, send message
 	g.Twitch.Whisper(user, message)
+
+	// logs message send as Info
+	log.WithFields(log.Fields{
+		"message": message,
+		"user":    user,
+	}).Info("Private message send")
 
 	return err
 }
@@ -277,12 +289,14 @@ func (g *Gambling) SendAcks() {
 		select {
 		// if a Drop inscrution is received, leave
 		case <-g.CurrentVote.Acks.Drop:
+			log.Info("Message drop instruction received")
 			return
 		// if an ack is received handle it
 		case ack, ok := <-g.CurrentVote.Acks.Buffer:
 			// if channel is empty juste leave
 			if !ok {
 				// Mark ack sending jobs as done
+				log.Info("Acks WIP set to false")
 				g.CurrentVote.Acks.WIP = false
 				return
 			}
@@ -294,7 +308,11 @@ func (g *Gambling) SendAcks() {
 			err := g.whisper(ack.Username, ack.message)
 			if err != nil {
 				// If rate limit is reached drop and log
-				fmt.Println("Error sending ACKs, rate limit is reached, message dropped")
+				log.WithFields(log.Fields{
+					"message": ack.message,
+					"user":    ack.Username,
+				}).Warn("Rate limit reached, while sending late ACKs message dropped")
+				return
 			}
 		}
 	}
@@ -327,6 +345,12 @@ func (g *Gambling) handleCreate(user twitch.User, args []string) {
 	g.CurrentVote.Acks = NewAcks()
 
 	g.say(fmt.Sprintf("There is a new vote! You can vote with '%s vote <vote> (choices are : %s)'", g.Config.Prefix, g.choices()))
+
+	log.WithFields(log.Fields{
+		"choices":        g.CurrentVote.Possibilities,
+		"requested by":   user.DisplayName,
+		"acks queue len": bufferSize,
+	}).Info("Vote created")
 }
 
 // close vote handler
@@ -360,6 +384,8 @@ func (g *Gambling) handleClose(user twitch.User) {
 		parts = append(parts, fmt.Sprintf("%s : %d (%.2f%%)", k, len(v), (float64(len(v))/float64(st.Total))*100))
 	}
 
+	log.Info("Vote closed")
+
 	g.say("Vote is now closed, time for statistics ! " + fmt.Sprintf("Participants : %d", st.Total) + " - " + strings.Join(parts, ", "))
 
 }
@@ -369,7 +395,7 @@ func (g *Gambling) handleVote(user twitch.User, args []string, verified bool) {
 
 	// Ensure the vote is open
 	if !g.CurrentVote.IsOpen {
-		fmt.Println("Warning, vote trigger while close")
+		log.Warn("Vote triggered while close")
 		return
 	}
 
@@ -380,6 +406,11 @@ func (g *Gambling) handleVote(user twitch.User, args []string, verified bool) {
 			err := g.whisper(user.Name, message)
 			// if an error occur, rate limit is reached try later and add it to ack queue
 			if err != nil {
+				log.WithFields(log.Fields{
+					"message": message,
+					"user":    user,
+					"valid":   false,
+				}).Info("Message added to ACKs queue")
 				g.CurrentVote.Acks.Buffer <- NewVoteAck(message, user.Name)
 			}
 		}
@@ -399,6 +430,11 @@ func (g *Gambling) handleVote(user twitch.User, args []string, verified bool) {
 			err := g.whisper(user.Name, message)
 			// if an error occur, rate limit is reached try later and add it to ack queue
 			if err != nil {
+				log.WithFields(log.Fields{
+					"message": message,
+					"user":    user,
+					"valid":   true,
+				}).Info("Message added to ACKs queue")
 				g.CurrentVote.Acks.Buffer <- NewVoteAck(message, user.Name)
 			}
 		}
@@ -409,6 +445,11 @@ func (g *Gambling) handleVote(user twitch.User, args []string, verified bool) {
 			err := g.whisper(user.Name, message)
 			// if an error occur, rate limit is reached try later and add it to ack queue
 			if err != nil {
+				log.WithFields(log.Fields{
+					"message": message,
+					"user":    user,
+					"valid":   false,
+				}).Info("Message added to ACKs queue")
 				g.CurrentVote.Acks.Buffer <- NewVoteAck(message, user.Name)
 			}
 		}
@@ -432,6 +473,10 @@ func (g *Gambling) handleDelete(user twitch.User) {
 	// Create a new empty vote
 	g.CurrentVote = new(Vote)
 
+	log.Info("Vote deleted")
+
+	g.say("Vote deleted !")
+
 }
 
 // handle a vote reset
@@ -450,6 +495,8 @@ func (g *Gambling) handleReset(user twitch.User) {
 	g.CurrentVote.Acks.Buffer = make(chan VoteAck, bufferSize)
 
 	g.CurrentVote.Votes = make(map[string]string)
+
+	log.Info("Vote reset")
 }
 
 // handle a call to stats generation (public or private)
@@ -467,7 +514,7 @@ func (g *Gambling) handleStat(user twitch.User, args []string) {
 			// Do it in private
 			err := statsToFile(stats, g.Config.Stats.Dir)
 			if err != nil {
-				fmt.Println(err)
+				log.Error(err.Error())
 				g.say("Error generating statistics in private mode")
 			}
 			g.say("Statistics generated in private mode")
@@ -477,7 +524,7 @@ func (g *Gambling) handleStat(user twitch.User, args []string) {
 		// If not in private mode, go public, and paste to pastebin
 		link, err := statsToPastebin(g.Config.Pastebin.Key, stats)
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err.Error())
 			g.say("Error generating statistics in public mode")
 		}
 		g.say(fmt.Sprintf("Statistics generated in public mode, check it at : %s", link))
@@ -519,11 +566,16 @@ func (g *Gambling) handleRoll(user twitch.User, args []string) {
 	}
 
 	if len(winners) == 0 {
+		log.WithField("selected", args[0]).Warn("No one vote for this one")
 		g.sayAt("Sorry but, no one vote for this one...", g.Config.Admins)
 		return
 	}
 
-	g.sayAt(fmt.Sprintf("And... The winner is... %s", winners[rand.Intn(len(winners))]), g.Config.Admins)
+	winner := winners[rand.Intn(len(winners))]
+
+	g.sayAt(fmt.Sprintf("And... The winner is... %s", winner), g.Config.Admins)
+
+	log.WithField("user", winner).Warn("Randomly selected user")
 
 }
 
