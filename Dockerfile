@@ -50,5 +50,7 @@ COPY --from=builder /opt/gambling-bot/cmd/gambling-bot /opt/gambling-bot
 
 USER gamble
 
+ENV LOGLEVEL=WARN
+
 # Run the binary
 ENTRYPOINT ["/opt/gambling-bot"]
