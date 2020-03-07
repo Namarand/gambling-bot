@@ -43,12 +43,12 @@ func (c *Conf) getConf(path string) *Conf {
 	// Open file
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
-		log.WithError(err).Errorf("Error opening config file : %s", path)
+		log.WithError(err).Fatalf("Error opening config file : %s", path)
 	}
 	// Unmarshal it into a Conf struct
 	err = yaml.Unmarshal(file, c)
 	if err != nil {
-		log.WithError(err).Errorf("Error reading config file : %s", path)
+		log.WithError(err).Fatalf("Error reading config file : %s", path)
 	}
 
 	log.WithFields(log.Fields{
