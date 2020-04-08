@@ -386,7 +386,7 @@ func (g *Gambling) handleClose(user twitch.User) {
 
 	log.Info("Vote closed")
 
-	g.say("Vote is now closed, time for statistics ! " + fmt.Sprintf("Participants : %d", st.Total) + " - " + strings.Join(parts, ", "))
+	g.say("Vote is now closed, time for statistics ! " + fmt.Sprintf("Participants : %d", st.Total) + " | " + strings.Join(parts, ", "))
 
 }
 
