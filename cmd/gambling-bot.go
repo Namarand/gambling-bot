@@ -20,9 +20,6 @@ func main() {
 	app.Usage = "A golang powered Twitch bot handling simple vote mechanism"
 	app.Version = "0.3.1"
 
-	// logs
-	logsSetup()
-
 	// Flags
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -38,6 +35,9 @@ func main() {
 
 		// Create a new gambling instance
 		gambling := internal.NewGambling(c.String("config"))
+
+		// logs
+		logsSetup()
 
 		// Start it
 		return gambling.Start()
