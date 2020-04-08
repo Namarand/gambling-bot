@@ -58,13 +58,6 @@ command takes an optional argument `private`.
 
  !gamble stats
 
-Will generate stats and publish it to pastebin, and push pastebin link to
-Twitch discussion channel, making it available for everyone
-
-or
-
- !gamble stats private
-
 Will generate a secret file, available using a basic authentification
 (user/password) on a dedicated web server. Contact your administrator for more
 information.
