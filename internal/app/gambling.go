@@ -508,27 +508,12 @@ func (g *Gambling) handleStat(user twitch.User, args []string) {
 
 	// create stats and store it into a string
 	stats := createStat(g.CurrentVote)
-	// Check args, if private mode is requested
-	if len(args) >= 1 {
-		if strings.ToLower(args[0]) == "private" {
-			// Do it in private
-			err := statsToFile(stats, g.Config.Stats.Dir)
-			if err != nil {
-				log.Error(err.Error())
-				g.say("Error generating statistics in private mode")
-			}
-			g.say("Statistics generated in private mode")
-			return
-		}
-	} else {
-		// If not in private mode, go public, and paste to pastebin
-		link, err := statsToPastebin(g.Config.Pastebin.Key, stats)
-		if err != nil {
-			log.Error(err.Error())
-			g.say("Error generating statistics in public mode")
-		}
-		g.say(fmt.Sprintf("Statistics generated in public mode, check it at : %s", link))
+	err := statsToFile(stats, g.Config.Stats.Dir)
+	if err != nil {
+		log.Error(err.Error())
+		g.say("Error generating statistics")
 	}
+	g.say("Statistics generated in private mode")
 
 }
 

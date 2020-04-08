@@ -8,8 +8,6 @@ import (
 	"time"
 
 	"github.com/apex/log"
-
-	"github.com/Ronmi/pastebin"
 )
 
 // Statistics is a struct containing generated stats for a given vote
@@ -50,18 +48,6 @@ func createStat(votes *Vote) string {
 	}
 
 	return str
-
-}
-
-// Push stats to pastebin as string
-func statsToPastebin(key string, stats string) (string, error) {
-	api := pastebin.API{Key: key}
-
-	return api.Post(&pastebin.Paste{
-		Title:    "Stat Vote",
-		Content:  stats,
-		ExpireAt: pastebin.In1D,
-	})
 
 }
 
