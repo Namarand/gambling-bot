@@ -33,11 +33,11 @@ func main() {
 	// Action
 	app.Action = func(c *cli.Context) error {
 
-		// Create a new gambling instance
-		gambling := internal.NewGambling(c.String("config"))
-
 		// logs
 		logsSetup()
+
+		// Create a new gambling instance
+		gambling := internal.NewGambling(c.String("config"))
 
 		// Start it
 		return gambling.Start()
