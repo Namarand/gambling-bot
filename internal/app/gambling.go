@@ -131,6 +131,21 @@ func lower(data []string) []string {
 
 }
 
+// Remove duplicates possibilities
+func filterPossibilities(data []string) []string {
+	var res []string
+	keys := make(map[string]bool)
+
+	for _, e := range data {
+		if _, s := keys[e]; !s {
+			keys[e] = true
+			res = append(res, e)
+		}
+	}
+
+	return res
+}
+
 // Link Twitch events to dedicated functions
 func (g *Gambling) twitchOnEventSetup() {
 	// Message handler, closure, because an access to *Gambling is needed
@@ -340,7 +355,8 @@ func (g *Gambling) handleCreate(user twitch.User, args []string) {
 
 	g.CurrentVote.IsOpen = true
 	g.CurrentVote.Votes = make(map[string]string)
-	g.CurrentVote.Possibilities = lower(args)
+	g.CurrentVote.Possibilities = filterPossibilities(lower(args))
+
 	// Ensure a 500 items long ACK queue
 	g.CurrentVote.Acks = NewAcks()
 

@@ -32,6 +32,22 @@ func TestWrongCommand(t *testing.T) {
 
 }
 
+func testFilterPossibilities(t *testing.T) {
+
+	var data = []string{"test", "test", "Test", "choice"}
+	var expected = []string{"test", "choice"}
+
+	res := filterPossibilities(data)
+
+	if res[0] != expected[0] {
+		t.Errorf("[filterPossibilities] Expected : %s, Get %s", expected, res)
+	}
+
+	if len(res) != 2 {
+		t.Errorf("[filterPossibilities] Choices not filtered correctly")
+	}
+}
+
 func TestVote(t *testing.T) {
 	g := &Gambling{
 		CurrentVote: &Vote{
