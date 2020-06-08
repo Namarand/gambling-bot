@@ -576,6 +576,18 @@ func (g *Gambling) handleRoll(user twitch.User, args []string) {
 
 	g.sayAt(fmt.Sprintf("And... The winner is... %s", winner), g.Config.Admins)
 
+	// Send private message to the winner if verified
+	if g.Config.Verified {
+		// get current date
+		date := time.Now()
+
+		// tail of the message, used to specify sending date, since Twitch UI not clear about this
+		tail := fmt.Sprintf("(sent on %d-%02d-%02d)", date.Year(), date.Month(), date.Day())
+
+		// Send the message
+		g.Twitch.Whisper(winner, fmt.Sprintf("%s %s", "Congrat's ! You're the winner ! Contact the streamer to get your reward !", tail))
+	}
+
 	log.WithField("user", winner).Warn("Randomly selected user")
 
 }
