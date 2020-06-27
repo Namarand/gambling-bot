@@ -2,6 +2,8 @@ package app
 
 import (
 	"testing"
+
+	"github.com/tj/assert"
 )
 
 func TestGetConf(t *testing.T) {
@@ -13,12 +15,7 @@ func TestGetConf(t *testing.T) {
 
 	c.getConf("../../tests/config.yml")
 
-	if c.Twitch.Oauth != expectedToken {
-		t.Errorf("[c.Twitch.Oauth] Expected : %s, Get : %s", expectedToken, c.Pastebin.Key)
-	}
+	assert.Equal(t, expectedToken, c.Twitch.Oauth)
 
-	if len(c.Admins) != 3 {
-		t.Errorf("[c.Admins] Expected : %d, Get : %d", expectedAdminLen, len(c.Admins))
-	}
-
+	assert.Equal(t, expectedAdminLen, len(c.Admins))
 }

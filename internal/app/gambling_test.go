@@ -3,6 +3,8 @@ package app
 import (
 	"sync"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestExtractCommand(t *testing.T) {
@@ -14,21 +16,9 @@ func TestExtractCommand(t *testing.T) {
 
 	cmd, args := extractCommand(message)
 
-	if cmd != cmdExpected {
-		t.Errorf("[extractCommand] Expected : %s, Get : %s", cmdExpected, cmd)
-	}
+	assert.Equal(t, cmdExpected, cmd)
 
-	if args[0] != argExpected {
-		t.Errorf("[extractCommand] Expected : %s, Get : %s", argExpected, args[0])
-	}
-
-}
-
-func TestWrongCommand(t *testing.T) {
-
-	var message = "!gamble"
-
-	extractCommand(message)
+	assert.Equal(t, argExpected, args[0])
 
 }
 
@@ -39,13 +29,9 @@ func testFilterPossibilities(t *testing.T) {
 
 	res := filterPossibilities(data)
 
-	if res[0] != expected[0] {
-		t.Errorf("[filterPossibilities] Expected : %s, Get %s", expected, res)
-	}
+	assert.Equal(t, expected[0], res[0])
 
-	if len(res) != 2 {
-		t.Errorf("[filterPossibilities] Choices not filtered correctly")
-	}
+	assert.Equal(t, 2, len(res))
 }
 
 func TestVote(t *testing.T) {

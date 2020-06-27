@@ -2,6 +2,8 @@ package app
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // generateVote is used to generate a test vote struct
@@ -21,13 +23,8 @@ func TestNewStatistics(t *testing.T) {
 
 	st := NewStatistics(v)
 
-	if st.Total != 2 {
-		t.Errorf("[NewStatistics] Expected : %d, Get : %d", 2, st.Total)
-	}
+	assert.Equal(t, 2, st.Total)
 
-	if len(st.Transformed["depraz"]) != 1 {
-		t.Errorf("[NewStatistics] Expected : %d, Get : %d", 1, len(st.Transformed["depraz"]))
-	}
 }
 
 func TestCreateStats(t *testing.T) {
@@ -38,7 +35,5 @@ levy (1): alice
 depraz (1): bob
 `
 
-	if createStat(v) != expected {
-		t.Errorf("[createStat] Expected : \n%s\n\nGet : \n%s\n", expected, createStat(v))
-	}
+	assert.Equal(t, expected, createStat(v))
 }
