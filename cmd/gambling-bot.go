@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/apex/log"
-	loghandler "github.com/apex/log/handlers/text"
+	loghandler "github.com/apex/log/handlers/logfmt"
 
 	internal "github.com/Namarand/gambling-bot/internal/app"
 	"github.com/urfave/cli"
