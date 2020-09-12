@@ -584,8 +584,12 @@ func (g *Gambling) handleRoll(user twitch.User, args []string) {
 		// tail of the message, used to specify sending date, since Twitch UI not clear about this
 		tail := fmt.Sprintf("(sent on %d-%02d-%02d)", date.Year(), date.Month(), date.Day())
 
+		for _, adm := range g.Config.Admins {
+			g.Twitch.Whisper(adm, fmt.Sprintf("Psstt, selected winner is : %s %s", winner, tail))
+		}
+
 		// Send the message
-		g.Twitch.Whisper(winner, fmt.Sprintf("%s %s", "Congrat's ! You're the winner ! Contact the streamer to get your reward !", tail))
+		g.Twitch.Whisper(winner, fmt.Sprintf("Congrat's ! You're the winner ! Contact the streamer to get your reward ! %s", tail))
 	}
 
 	log.WithField("user", winner).Warn("Randomly selected user")
