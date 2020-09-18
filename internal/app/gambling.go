@@ -572,8 +572,8 @@ func (g *Gambling) rollWinner(team string) (string, error) {
 		if len(g.CurrentVote.Winners) > 0 {
 			// for all winners
 			for _, win := range g.CurrentVote.Winners {
-				// check if this user is a winner
-				if vote == strings.ToLower(team) && user == win {
+				// is this user a duplicate ?
+				if user == win {
 					// if so mark it as duplicate
 					duplicate = true
 				}
@@ -582,7 +582,8 @@ func (g *Gambling) rollWinner(team string) (string, error) {
 
 		// add user if it's not a duplicate
 		// if there is no already selected winners, duplicate will always be false so add everyone
-		if !duplicate {
+		// check vote of for this user, ensure it matches the argument
+		if !duplicate && vote == team {
 			candidates = append(candidates, user)
 		}
 	}
