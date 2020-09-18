@@ -24,6 +24,7 @@ type Vote struct {
 	Possibilities []string
 	Votes         map[string]string
 	Acks          Acks
+	Winners       []string
 }
 
 // Acks is used to store and send ack messages stored if rate limit is reached
@@ -177,6 +178,9 @@ func (g *Gambling) twitchOnEventSetup() {
 			break
 		case "delete":
 			g.handleDelete(message.User)
+			break
+		case "winners":
+			g.handleWinList(message.User)
 			break
 		case "reset":
 			g.handleReset(message.User)
@@ -533,6 +537,69 @@ func (g *Gambling) handleStat(user twitch.User, args []string) {
 
 }
 
+// handle a call to winners list
+func (g *Gambling) handleWinList(user twitch.User) {
+
+	if !checkPermission(user.Name, g.Config.Admins) {
+		return
+	}
+
+	if g.CurrentVote.IsOpen {
+		g.sayAt(fmt.Sprintf("Hey ! The vote isn't closed ! Close it using command : '%s close'", g.Config.Prefix), g.Config.Admins)
+		return
+	}
+
+	if len(g.CurrentVote.Winners) <= 0 {
+		g.sayAt("There is no selected winners for this vote", g.Config.Admins)
+		return
+	}
+
+	g.sayAt(fmt.Sprintf("Ordered list of winners for this vote : %s", strings.Join(g.CurrentVote.Winners, " - ")), g.Config.Admins)
+
+}
+
+// Roll a winner, ensure no duplicates and append to winners list
+func (g *Gambling) rollWinner(team string) (string, error) {
+	// slice of user, filter out already selected winners
+	var candidates []string
+
+	// for all votes and associated user
+	for user, vote := range g.CurrentVote.Votes {
+
+		// check for duplicate
+		duplicate := false
+		// if there is already winners in the list
+		if len(g.CurrentVote.Winners) > 0 {
+			// for all winners
+			for _, win := range g.CurrentVote.Winners {
+				// check if this user is a winner
+				if vote == strings.ToLower(team) && user == win {
+					// if so mark it as duplicate
+					duplicate = true
+				}
+			}
+		}
+
+		// add user if it's not a duplicate
+		// if there is no already selected winners, duplicate will always be false so add everyone
+		if !duplicate {
+			candidates = append(candidates, user)
+		}
+	}
+
+	if len(candidates) <= 0 {
+		return "", fmt.Errorf("Sorry not enough candidates to roll a winner in team %s", team)
+	}
+
+	selected := candidates[rand.Intn(len(candidates))]
+
+	g.CurrentVote.Winners = append(g.CurrentVote.Winners, selected)
+
+	log.WithField("user", selected).Warn("Randomly selected user, added to winners list")
+
+	return selected, nil
+}
+
 // handle roll and select winner
 func (g *Gambling) handleRoll(user twitch.User, args []string) {
 
@@ -557,22 +624,14 @@ func (g *Gambling) handleRoll(user twitch.User, args []string) {
 
 	if !g.isVoteValid(args[0]) {
 		g.sayAt(fmt.Sprintf("%s is not a correct roll option (choices are : %s)", args[0], g.choices()), g.Config.Admins)
-	}
-
-	winners := []string{}
-	for user, vote := range g.CurrentVote.Votes {
-		if vote == strings.ToLower(args[0]) {
-			winners = append(winners, user)
-		}
-	}
-
-	if len(winners) == 0 {
-		log.WithField("selected", args[0]).Warn("No one vote for this one")
-		g.sayAt("Sorry but, no one vote for this one...", g.Config.Admins)
 		return
 	}
 
-	winner := winners[rand.Intn(len(winners))]
+	winner, err := g.rollWinner(args[0])
+	if err != nil {
+		g.sayAt(err.Error(), g.Config.Admins)
+		return
+	}
 
 	g.sayAt(fmt.Sprintf("And... The winner is... %s", winner), g.Config.Admins)
 
@@ -591,8 +650,6 @@ func (g *Gambling) handleRoll(user twitch.User, args []string) {
 		// Send the message
 		g.Twitch.Whisper(winner, fmt.Sprintf("Congrat's ! You're the winner ! Contact the streamer to get your reward ! %s", tail))
 	}
-
-	log.WithField("user", winner).Warn("Randomly selected user")
 
 }
 

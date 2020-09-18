@@ -31,13 +31,20 @@ _Example :_
 
 ==== Roll
 
-`roll` command uses one argument from the vote to determine a winner
+`roll` command uses one argument from the vote to select a winner
 
  !gamble roll first
 
 _Example :_
 
  !gamble roll pl
+
+
+==== Winners
+
+`winners` command list all the selected winners (in order) for this session
+
+ !gamble winners
 
 ==== Delete
 
