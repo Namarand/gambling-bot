@@ -25,6 +25,8 @@ github.com/gempir/go-twitch-irc/v2 v2.3.1 h1:ZiYdYsIEb090xNQJ132aX9DQLRpTwOEALSP
 github.com/gempir/go-twitch-irc/v2 v2.3.1/go.mod h1:120d2SdlRYg8tRnZwsyNPeS+mWPn+YmNEzB7Bv/CDGE=
 github.com/gempir/go-twitch-irc/v2 v2.4.2 h1:tdOTkbPlhCsT0flJeN/Cw90o2c+Vb9FZslj8VTSGYtM=
 github.com/gempir/go-twitch-irc/v2 v2.4.2/go.mod h1:120d2SdlRYg8tRnZwsyNPeS+mWPn+YmNEzB7Bv/CDGE=
+github.com/gempir/go-twitch-irc/v2 v2.5.0 h1:aybXNoyDNQaa4vHhXb0UpIDmspqutQUmXIYUFsjgecU=
+github.com/gempir/go-twitch-irc/v2 v2.5.0/go.mod h1:120d2SdlRYg8tRnZwsyNPeS+mWPn+YmNEzB7Bv/CDGE=
 github.com/go-logfmt/logfmt v0.4.0 h1:MP4Eh7ZCb31lleYCFuwm0oe4/YGak+5l1vA2NOE80nA=
 github.com/go-logfmt/logfmt v0.4.0/go.mod h1:3RMwSq7FuexP4Kalkev3ejPJsZTpXXBr9+V4qmtdjCk=
 github.com/go-logfmt/logfmt v0.5.0 h1:TrB8swr/68K7m9CcGut2g3UOihhbcbiMAYiuTXdEih4=

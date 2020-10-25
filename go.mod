@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/apex/log v1.9.0
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
-	github.com/gempir/go-twitch-irc/v2 v2.4.2
+	github.com/gempir/go-twitch-irc/v2 v2.5.0
 	github.com/go-logfmt/logfmt v0.5.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
