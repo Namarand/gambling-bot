@@ -1,6 +1,6 @@
 # Stage 1 : Build
 # Use golang base image
-FROM golang:stretch as builder
+FROM golang:bullseye as builder
 
 # Declare args
 ARG REVISION
@@ -29,7 +29,10 @@ WORKDIR /opt/gambling-bot/cmd
 RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o gambling-bot
 
 # Stage 2 : run !
-FROM debian:stretch
+FROM debian:bullseye
+
+RUN apt-get update -y \
+	&& apt-get upgrade -y
 
 RUN useradd -ms /bin/bash gamble
 
