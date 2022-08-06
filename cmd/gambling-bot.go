@@ -18,7 +18,7 @@ func main() {
 	// Basic config
 	app.Name = "gambling-bot"
 	app.Usage = "A golag powered Twitch bot handling simple vote mechanism"
-	app.Version = "1.2.6"
+	app.Version = "1.2.7"
 
 	// Flags
 	app.Flags = []cli.Flag{
